@@ -10,6 +10,7 @@ provider:
       Action:
         - dynamodb:PutItem
         - dynamodb:DeleteItem
+        - dynamodb:GetItem
       Resource: "arn:aws:dynamodb:eu-west-2:*:*"
 
 functions:
@@ -25,6 +26,10 @@ functions:
       - http:
           path: projects/{uuid}
           method: delete
+          private: true
+      - http:
+          path: projects/{uuid}
+          method: get
           private: true
 
 resources:

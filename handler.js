@@ -15,6 +15,9 @@ exports.projects = (event, context, callback) => {
     const body = JSON.parse(event.body);
 
     switch (event.httpMethod) {
+        case 'GET':
+            getProject(event.pathParameters.uuid, next);
+            break;
         case 'POST':
             insertProject(body.name, body.description, next);
             break;
@@ -63,6 +66,23 @@ function deleteProject(uuid, next) {
             next("Unable to delete project", null);
         } else {
             next(null, res);
+        }
+    });
+}
+
+function getProject(uuid, next) {
+    const params = {
+        TableName: "projects",
+        Key: {
+            "uuid": uuid
+        }
+    };
+
+    dynamo.get(params, (err, res) => {
+        if (err) {
+            next("Unable to retrieve project", null);
+        } else {
+            next(null, res.Item);
         }
     });
 }
