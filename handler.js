@@ -35,6 +35,15 @@ function insertProject(name, description, next) {
         }
     };
 
-    dynamo.put(params, next);
+    dynamo.put(params, (err, res) => {
+        if (err) {
+            next("Error creating project", null);
+        } else {
+            const response = {
+                uuid: uuid
+            };
+            next(null, response);
+        }
+    });
 }
 
