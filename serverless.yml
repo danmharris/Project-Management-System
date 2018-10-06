@@ -1,0 +1,25 @@
+service: projects
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: eu-west-2
+
+resources:
+  Resources:
+    projectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: projectsTable
+        AttributeDefinitions:
+          - AttributeName: uuid
+            AttributeType: S
+        KeySchema:
+          - AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+
