@@ -1,0 +1,22 @@
+{
+  "name": "Project Management API",
+  "version": "1.0.0",
+  "description": "A serverless API for managing projects",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danmharris/COMP3207-CW1.git"
+  },
+  "author": "Dan Harris",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danmharris/COMP3207-CW1/issues"
+  },
+  "homepage": "https://github.com/danmharris/COMP3207-CW1#readme",
+  "dependencies": {
+    "uuid": "^3.3.2"
+  }
+}

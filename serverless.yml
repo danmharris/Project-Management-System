@@ -5,13 +5,29 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: eu-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Putitem
+      Resource: "arn:aws:dynamodb:eu-west-2:*:*"
+
+functions:
+  project:
+    handler: handler.projects
+    name: ${self:provider.stage}-projectHandler
+    description: Handles API calls related to projects
+    events:
+      - http:
+          path: projects
+          method: post
+          private: true
 
 resources:
   Resources:
     projectsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: projectsTable
+        TableName: projects
         AttributeDefinitions:
           - AttributeName: uuid
             AttributeType: S
