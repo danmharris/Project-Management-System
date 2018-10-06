@@ -8,7 +8,8 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:Putitem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:eu-west-2:*:*"
 
 functions:
@@ -20,6 +21,10 @@ functions:
       - http:
           path: projects
           method: post
+          private: true
+      - http:
+          path: projects/{uuid}
+          method: delete
           private: true
 
 resources:

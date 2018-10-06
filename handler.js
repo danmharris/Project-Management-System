@@ -18,6 +18,9 @@ exports.projects = (event, context, callback) => {
         case 'POST':
             insertProject(body.name, body.description, next);
             break;
+        case 'DELETE':
+            deleteProject(event.pathParameters.uuid, next);
+            break;
         default:
             next(new Error(`Unsupported method "${event.httpMethod}"`));
     }
@@ -47,3 +50,19 @@ function insertProject(name, description, next) {
     });
 }
 
+function deleteProject(uuid, next) {
+    const params = {
+        TableName: "projects",
+        Key: {
+            "uuid": uuid
+        }
+    };
+
+    dynamo.delete(params, (err, res) => {
+        if (err) {
+            next("Unable to delete project", null);
+        } else {
+            next(null, res);
+        }
+    });
+}
