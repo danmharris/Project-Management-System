@@ -1,10 +1,13 @@
-const AWS = require('aws-sdk');
-const uuidv1 = require('uuid/v1');
+import * as AWS from 'aws-sdk';
+import * as uuidv1 from 'uuid/v1';
+import { Handler, Context, Callback } from 'aws-lambda';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
-exports.projects = (event, context, callback) => {
-    const next = (err, res) => callback(null, {
+type DoneCallback = (err: any, res: any) => void;
+
+const projects: Handler = (event: any, context: Context, callback: Callback) => {
+    const next = (err: any, res: any) => callback(null, {
         statusCode: err ? '400' : '200',
         body: err ? err.message : JSON.stringify(res),
         headers: {
@@ -25,11 +28,11 @@ exports.projects = (event, context, callback) => {
             deleteProject(event.pathParameters.uuid, next);
             break;
         default:
-            next(new Error(`Unsupported method "${event.httpMethod}"`));
+            next(new Error(`Unsupported method "${event.httpMethod}"`), null);
     }
 };
 
-function insertProject(name, description, next) {
+function insertProject(name: string, description: string, next: DoneCallback) {
     const uuid = uuidv1();
 
     const params = {
@@ -53,7 +56,7 @@ function insertProject(name, description, next) {
     });
 }
 
-function deleteProject(uuid, next) {
+function deleteProject(uuid: string, next: DoneCallback) {
     const params = {
         TableName: "projects",
         Key: {
@@ -70,7 +73,7 @@ function deleteProject(uuid, next) {
     });
 }
 
-function getProject(uuid, next) {
+function getProject(uuid: string, next: DoneCallback) {
     const params = {
         TableName: "projects",
         Key: {
@@ -86,3 +89,5 @@ function getProject(uuid, next) {
         }
     });
 }
+
+export { projects };

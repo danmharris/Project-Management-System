@@ -1,5 +1,8 @@
 service: projects
 
+plugins:
+  - serverless-plugin-typescript
+
 provider:
   name: aws
   runtime: nodejs8.10
@@ -48,4 +51,6 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
 
-
+package:
+  exclude:
+    - node_modules/**
