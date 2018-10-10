@@ -86,6 +86,33 @@ class Project {
         });
     }
 
+    update(): Promise<any> {
+        const params = {
+            TableName: "projects",
+            Key: {
+                uuid: this.uuid
+            },
+            UpdateExpression: "set #name=:n, description=:d",
+            ExpressionAttributeNames: {
+                "#name": "name"
+            },
+            ExpressionAttributeValues: {
+                ":n" : this.name,
+                ":d" : this.description,
+            }
+        }
+
+        return new Promise((resolve, reject) => {
+            this.dbh.update(params, (err: any, res: any) => {
+                if (err) {
+                    reject("Unable to update project");
+                } else {
+                    resolve(res);
+                }
+            });
+        });
+    }
+
     delete(): Promise<any> {
         const params = {
             TableName: "projects",
@@ -103,6 +130,16 @@ class Project {
                 }
             });
         });
+    }
+
+    setParams(params: any) {
+        if (params.name) {
+            this.name = params.name;
+        }
+
+        if (params.description) {
+            this.description = params.description;
+        }
     }
 
     getParams(): ProjectParams {

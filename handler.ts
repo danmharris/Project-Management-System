@@ -1,7 +1,6 @@
 import * as AWS from 'aws-sdk';
 import { Handler, Context, Callback } from 'aws-lambda';
 import { Project, ProjectParams } from './project';
-import { String } from 'aws-sdk/clients/signer';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -29,6 +28,14 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
             }
             new Project(params, dynamo).save().then((uuid: string) => {
                 next(null, { uuid: uuid});
+            });
+            break;
+        case 'PUT':
+            Project.getById(event.pathParameters.uuid, dynamo).then((proj: Project) => {
+                proj.setParams(body);
+                return proj.update();
+            }).then(() => {
+                next(null, {});
             });
             break;
         case 'DELETE':
