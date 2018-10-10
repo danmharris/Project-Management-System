@@ -1,5 +1,7 @@
 import * as uuidv1 from 'uuid/v1';
 
+const TABLE_NAME = "projects";
+
 interface ProjectParams {
     uuid?: string,
     name: string,
@@ -11,7 +13,7 @@ class Project {
     private _name: string;
     private _description: string;
     private dbh: any;
-    
+
     constructor(params: ProjectParams, dbh: any) {
         this._name = params.name;
         this._description = params.description;
@@ -47,12 +49,12 @@ class Project {
 
     static getById(uuid: string, dbh: any): Promise<Project> {
         const params = {
-            TableName: "projects",
+            TableName: TABLE_NAME,
             Key: {
                 "uuid": uuid
             }
         };
-    
+
         return new Promise((resolve, reject) => {
             dbh.get(params, (err: any, res: any) => {
                 if (err) {
@@ -62,12 +64,12 @@ class Project {
                 }
             });
         });
-       
+
     }
 
     save(): Promise<string> {
         const params = {
-            TableName: "projects",
+            TableName: TABLE_NAME,
             Item: {
                 "uuid": this.uuid,
                 "name": this.name,
@@ -88,7 +90,7 @@ class Project {
 
     update(): Promise<any> {
         const params = {
-            TableName: "projects",
+            TableName: TABLE_NAME,
             Key: {
                 uuid: this.uuid
             },
@@ -115,12 +117,12 @@ class Project {
 
     delete(): Promise<any> {
         const params = {
-            TableName: "projects",
+            TableName: TABLE_NAME,
             Key: {
                 "uuid": this.uuid
             }
         };
-    
+
         return new Promise((resolve, reject) => {
             this.dbh.delete(params, (err: any, res: any) => {
                 if (err) {

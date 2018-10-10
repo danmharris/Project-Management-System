@@ -1,53 +1,74 @@
 import * as AWS from 'aws-sdk';
 import { Handler, Context, Callback } from 'aws-lambda';
-import { Project, ProjectParams } from './project';
+import { Project } from './project';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {
-    const next = (err: any, res: any) => callback(null, {
-        statusCode: err ? '400' : '200',
-        body: err ? err.message : JSON.stringify(res),
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
     const body = JSON.parse(event.body);
 
     switch (event.httpMethod) {
         case 'GET':
-            Project.getById(event.pathParameters.uuid, dynamo).then((proj: Project) => {
-                next(null, proj.getParams());
-            })
+            handle(get(event.pathParameters.uuid), callback);
             break;
         case 'POST':
-            const params: ProjectParams = {
-                name: body.name,
-                description: body.description,
-            }
-            new Project(params, dynamo).save().then((uuid: string) => {
-                next(null, { uuid: uuid});
-            });
+            handle(post(body), callback);
             break;
         case 'PUT':
-            Project.getById(event.pathParameters.uuid, dynamo).then((proj: Project) => {
-                proj.setParams(body);
-                return proj.update();
-            }).then(() => {
-                next(null, {});
-            });
+            handle(put(event.pathParameters.uuid, body), callback);
             break;
         case 'DELETE':
-            Project.getById(event.pathParameters.uuid, dynamo).then((proj: Project) => {
-                return proj.delete();
-            }).then(() => {
-                next(null, {});
-            });
+            handle(remove(event.pathParameters.uuid), callback);
             break;
         default:
-            next(new Error(`Unsupported method "${event.httpMethod}"`), null);
+            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            break;
     }
 };
+
+function handle(promise: Promise<any>, callback: Callback) {
+    promise.then(res => {
+        callback(null, {
+            statusCode: '200',
+            body: JSON.stringify(res),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }).catch(err => {
+        callback(null, {
+            statusCode: '400',
+            body: JSON.stringify(err),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    })
+}
+
+function get(uuid: string): Promise<any> {
+    return Project.getById(uuid, dynamo).then((proj: Project) => {
+        return proj.getParams();
+    });
+}
+
+function put(uuid: string, body: any): Promise<any> {
+    return Project.getById(uuid, dynamo).then((proj: Project) => {
+        proj.setParams(body);
+        return proj.update();
+    });
+}
+
+function remove(uuid: string): Promise<any> {
+    return Project.getById(uuid, dynamo).then((proj: Project) => {
+        return proj.delete();
+    });
+}
+
+function post(body: any): Promise<any> {
+    return new Project(body, dynamo).save().then((uuid: string) => {
+        return { uuid: uuid };
+    });
+}
 
 export { projects };
