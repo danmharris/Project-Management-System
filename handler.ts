@@ -1,10 +1,9 @@
 import * as AWS from 'aws-sdk';
-import * as uuidv1 from 'uuid/v1';
 import { Handler, Context, Callback } from 'aws-lambda';
+import { Project, ProjectParams } from './project';
+import { String } from 'aws-sdk/clients/signer';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
-
-type DoneCallback = (err: any, res: any) => void;
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {
     const next = (err: any, res: any) => callback(null, {
@@ -19,75 +18,29 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
 
     switch (event.httpMethod) {
         case 'GET':
-            getProject(event.pathParameters.uuid, next);
+            Project.getById(event.pathParameters.uuid, dynamo).then((proj: Project) => {
+                next(null, proj.getParams());
+            })
             break;
         case 'POST':
-            insertProject(body.name, body.description, next);
+            const params: ProjectParams = {
+                name: body.name,
+                description: body.description,
+            }
+            new Project(params, dynamo).save().then((uuid: string) => {
+                next(null, { uuid: uuid});
+            });
             break;
         case 'DELETE':
-            deleteProject(event.pathParameters.uuid, next);
+            Project.getById(event.pathParameters.uuid, dynamo).then((proj: Project) => {
+                return proj.delete();
+            }).then(() => {
+                next(null, {});
+            });
             break;
         default:
             next(new Error(`Unsupported method "${event.httpMethod}"`), null);
     }
 };
-
-function insertProject(name: string, description: string, next: DoneCallback) {
-    const uuid = uuidv1();
-
-    const params = {
-        TableName: "projects",
-        Item: {
-            "uuid": uuid,
-            "name": name,
-            "description": description
-        }
-    };
-
-    dynamo.put(params, (err, res) => {
-        if (err) {
-            next("Error creating project", null);
-        } else {
-            const response = {
-                uuid: uuid
-            };
-            next(null, response);
-        }
-    });
-}
-
-function deleteProject(uuid: string, next: DoneCallback) {
-    const params = {
-        TableName: "projects",
-        Key: {
-            "uuid": uuid
-        }
-    };
-
-    dynamo.delete(params, (err, res) => {
-        if (err) {
-            next("Unable to delete project", null);
-        } else {
-            next(null, res);
-        }
-    });
-}
-
-function getProject(uuid: string, next: DoneCallback) {
-    const params = {
-        TableName: "projects",
-        Key: {
-            "uuid": uuid
-        }
-    };
-
-    dynamo.get(params, (err, res) => {
-        if (err) {
-            next("Unable to retrieve project", null);
-        } else {
-            next(null, res.Item);
-        }
-    });
-}
 
 export { projects };
