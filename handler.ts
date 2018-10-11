@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 import { Handler, Context, Callback } from 'aws-lambda';
-import { Project } from './project';
+import { Project, isProjectParams } from './project';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -53,6 +53,10 @@ function get(uuid: string): Promise<any> {
 }
 
 function put(uuid: string, body: any): Promise<any> {
+    if(!isProjectParams(body)) {
+        return Promise.reject('Invalid request');
+    }
+
     return Project.getById(uuid, dynamo).then((proj: Project) => {
         proj.setParams(body);
         return proj.update();
@@ -66,6 +70,10 @@ function remove(uuid: string): Promise<any> {
 }
 
 function post(body: any): Promise<any> {
+    if(!isProjectParams(body)) {
+        return Promise.reject('Invalid request');
+    }
+
     return new Project(body, dynamo).save().then((uuid: string) => {
         return { uuid: uuid };
     });

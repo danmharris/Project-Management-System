@@ -2,7 +2,7 @@ import * as expect from 'expect';
 import * as sinon from 'sinon';
 import * as AWS from 'aws-sdk';
 import { describe, it } from 'mocha';
-import { Project, ProjectParams, ProjectStatus } from '../project';
+import { Project, ProjectParams, ProjectStatus, isProjectParams } from '../project';
 
 describe('Project', function() {
     let params: ProjectParams;
@@ -25,7 +25,7 @@ describe('Project', function() {
                     Item: {
                         uuid: '123',
                         name: 'A project',
-                        description: 'roject description',
+                        description: 'Project description',
                         status: 1,
                     }
                 })
@@ -218,6 +218,66 @@ describe('Project', function() {
                 expect(failDeleteStub.called);
                 expect(err).toEqual('Unable to delete project');
             });
+        });
+    });
+
+    describe('isProjectParams', function() {
+        let params: any;
+
+        beforeEach(function() {
+            params = {
+                name: 'name',
+                description: 'description',
+                uuid: '123',
+                status: 2,
+            }
+        });
+
+        it('should return true when required properties provided', function() {
+            const res = isProjectParams(params);
+            expect(res).toBeTruthy();
+        });
+
+        it('should return false if required parameter missing', function() {
+            let res = isProjectParams({name: 'name'});
+            expect(res).toBeFalsy();
+
+            res = isProjectParams(({description: 'description'}));
+            expect(res).toBeFalsy();
+        });
+
+        it('should return an error if name type is wrong', function() {
+            params.name = 2;
+            const res = isProjectParams(params);
+            expect(res).toBeFalsy();
+        });
+
+        it('should return an error if description type is wrong', function() {
+            params.description = 2;
+            const res = isProjectParams(params);
+            expect(res).toBeFalsy();
+        });
+
+        it('should return an error if uuid type is wrong', function() {
+            params.uuid = 2;
+            const res = isProjectParams(params);
+            expect(res).toBeFalsy();
+        });
+
+        it('should return an error if status type is wrong', function() {
+            params.status = "2";
+            const res = isProjectParams(params);
+            expect(res).toBeFalsy();
+        });
+
+        it('should return an error if status range is wrong', function() {
+            params.status = -1;
+            let res = isProjectParams(params);
+            expect(res).toBeFalsy();
+
+            params.status = 3;
+            res = isProjectParams(params);
+            expect(res).toBeFalsy();
         });
     });
 });

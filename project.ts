@@ -15,6 +15,34 @@ interface ProjectParams {
     status?: ProjectStatus,
 }
 
+const isProjectParams: (obj: any) => Boolean = function (obj:any) {
+    if (!obj.name || !obj.description) {
+        return false;
+    }
+
+    if (typeof obj.name !== "string" || typeof obj.description !== "string") {
+        return false;
+    }
+
+    if (obj.uuid) {
+        if (typeof obj.uuid !== "string") {
+            return false;
+        }
+    }
+
+    if (obj.status) {
+        if (typeof obj.status !== "number") {
+            return false;
+        }
+
+        if (obj.status < 0 || obj.status > 2) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 class Project {
     private _uuid: string;
     private _name: string;
@@ -185,4 +213,4 @@ class Project {
     }
 }
 
-export { Project, ProjectParams, ProjectStatus };
+export { Project, ProjectParams, ProjectStatus, isProjectParams };
