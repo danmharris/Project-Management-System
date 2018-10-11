@@ -109,6 +109,7 @@ class Project {
                 if (err) {
                     reject("Unable to update project");
                 } else {
+                    // TODO: More meaningful return data here
                     resolve(res);
                 }
             });
