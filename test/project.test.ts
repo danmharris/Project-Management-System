@@ -2,7 +2,7 @@ import * as expect from 'expect';
 import * as sinon from 'sinon';
 import * as AWS from 'aws-sdk';
 import { describe, it } from 'mocha';
-import { Project, ProjectParams } from '../project';
+import { Project, ProjectParams, ProjectStatus } from '../project';
 
 describe('Project', function() {
     let params: ProjectParams;
@@ -24,8 +24,9 @@ describe('Project', function() {
                 next(null, {
                     Item: {
                         uuid: '123',
-                        name: "A project",
-                        description: "Project description"
+                        name: 'A project',
+                        description: 'roject description',
+                        status: 1,
                     }
                 })
             });
@@ -35,6 +36,7 @@ describe('Project', function() {
                 expect(proj.uuid).toBe("123");
                 expect(proj.name).toBe("A project");
                 expect(proj.description).toBe("Project description");
+                expect(proj.status).toBe(ProjectStatus.ACTIVE);
             });
         });
 
@@ -60,12 +62,22 @@ describe('Project', function() {
         it('should set the UUID if provided', function() {
             params.uuid = '123';
 
-            let proj: Project = new Project(params, null);
+            proj = new Project(params, null);
             expect(proj.uuid).toEqual('123');
         });
 
         it('should generate a uuid if not provided', function() {
             expect(proj.uuid).toBeTruthy();
+        });
+
+        it('should set the status if provided', function() {
+            params.status = ProjectStatus.DONE;
+            proj = new Project(params, null);
+            expect(proj.status).toEqual(ProjectStatus.DONE);
+        });
+
+        it('should set status to PENDING if not provided', function() {
+            expect(proj.status).toEqual(ProjectStatus.PENDING);
         });
     });
 
@@ -75,6 +87,8 @@ describe('Project', function() {
             expect(proj.name).toEqual('new name');
             proj.description = 'new description';
             expect(proj.description).toEqual('new description');
+            proj.status = ProjectStatus.DONE;
+            expect(proj.status).toEqual(ProjectStatus.DONE);
         });
     });
 
@@ -87,7 +101,6 @@ describe('Project', function() {
             proj.setParams(newParams);
 
             expect(proj.name).toEqual('new name');
-            expect(proj.description).toEqual('description');
         });
 
         it('should update the description if provided', function() {
@@ -97,24 +110,36 @@ describe('Project', function() {
 
             proj.setParams(newParams);
 
-            expect(proj.name).toEqual('name');
             expect(proj.description).toEqual('new description');
+        });
+
+        it('should update the status if provided', function() {
+            const newParams = {
+                status: ProjectStatus.DONE,
+            }
+
+            proj.setParams(newParams);
+
+            expect(proj.status).toEqual(ProjectStatus.DONE);
         });
 
         it('should update combinations of fields', function() {
             const newParams = {
                 name: 'new name',
                 description: 'new description',
+                status: ProjectStatus.DONE,
             }
 
             proj.setParams(newParams);
 
             expect(proj.name).toEqual('new name');
             expect(proj.description).toEqual('new description');
+            expect(proj.status).toEqual(ProjectStatus.DONE);
         });
 
         it('should return all parameters', function() {
             params.uuid = '123';
+            params.status = ProjectStatus.DONE;
             proj = new Project(params, null);
 
             const retrievedParams: ProjectParams = proj.getParams();
@@ -122,6 +147,7 @@ describe('Project', function() {
             expect(retrievedParams.uuid).toEqual('123');
             expect(retrievedParams.name).toEqual('name');
             expect(retrievedParams.description).toEqual('description');
+            expect(retrievedParams.status).toEqual(ProjectStatus.DONE);
         })
     });
 

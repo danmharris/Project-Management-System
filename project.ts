@@ -2,21 +2,35 @@ import * as uuidv1 from 'uuid/v1';
 
 const TABLE_NAME = "projects";
 
+enum ProjectStatus {
+    PENDING = 0,
+    ACTIVE = 1,
+    DONE = 2,
+}
+
 interface ProjectParams {
     uuid?: string,
     name: string,
     description: string,
+    status?: ProjectStatus,
 }
 
 class Project {
     private _uuid: string;
     private _name: string;
     private _description: string;
+    private _status: ProjectStatus;
     private dbh: any;
 
     constructor(params: ProjectParams, dbh: any) {
         this._name = params.name;
         this._description = params.description;
+
+        if (params.status) {
+            this._status = params.status;
+        } else {
+            this._status = ProjectStatus.PENDING;
+        }
 
         if (params.uuid) {
             this._uuid = params.uuid;
@@ -47,6 +61,14 @@ class Project {
         this._description = newDesc;
     }
 
+    get status() {
+        return this._status;
+    }
+
+    set status(newStatus: ProjectStatus) {
+        this._status = newStatus;
+    }
+
     static getById(uuid: string, dbh: any): Promise<Project> {
         const params = {
             TableName: TABLE_NAME,
@@ -73,7 +95,8 @@ class Project {
             Item: {
                 "uuid": this.uuid,
                 "name": this.name,
-                "description": this.description
+                "description": this.description,
+                "status": this.status,
             }
         };
 
@@ -94,13 +117,14 @@ class Project {
             Key: {
                 uuid: this.uuid
             },
-            UpdateExpression: "set #name=:n, description=:d",
+            UpdateExpression: "set #name=:n, description=:d, status=:s",
             ExpressionAttributeNames: {
                 "#name": "name"
             },
             ExpressionAttributeValues: {
                 ":n" : this.name,
                 ":d" : this.description,
+                ":s" : this.status,
             }
         }
 
@@ -143,6 +167,12 @@ class Project {
         if (params.description) {
             this.description = params.description;
         }
+
+        if (params.status) {
+            if (params.status >= 0 && params.status <= 2) {
+                this.status = params.status;
+            }
+        }
     }
 
     getParams(): ProjectParams {
@@ -150,8 +180,9 @@ class Project {
             uuid: this.uuid,
             name: this.name,
             description: this.description,
+            status: this.status,
         };
     }
 }
 
-export { Project, ProjectParams };
+export { Project, ProjectParams, ProjectStatus };
