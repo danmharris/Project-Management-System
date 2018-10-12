@@ -1,0 +1,68 @@
+service: projects
+
+plugins:
+  - serverless-plugin-typescript
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: eu-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:Scan
+      Resource: "arn:aws:dynamodb:eu-west-2:*:*"
+  apiKeys:
+    - devKey
+
+functions:
+  project:
+    handler: handler.projects
+    name: ${self:provider.stage}-projectHandler
+    description: Handles API calls related to projects
+    events:
+      - http:
+          path: projects
+          method: post
+          private: true
+      - http:
+          path: projects/{uuid}
+          method: delete
+          private: true
+      - http:
+          path: projects/{uuid}
+          method: get
+          private: true
+      - http:
+          path: projects/{uuid}
+          method: put
+          private: true
+      - http:
+          path: projects
+          method: get
+          private: true
+
+resources:
+  Resources:
+    projectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: projects
+        AttributeDefinitions:
+          - AttributeName: uuid
+            AttributeType: S
+        KeySchema:
+          - AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+package:
+  exclude:
+    - node_modules/**

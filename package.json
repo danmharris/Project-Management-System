@@ -1,0 +1,40 @@
+{
+  "name": "project-management-api",
+  "version": "1.0.0",
+  "description": "A serverless API for managing projects",
+  "main": "handler.js",
+  "scripts": {
+    "test": "nyc --reporter=html --require ts-node/register mocha test/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danmharris/COMP3207-CW1.git"
+  },
+  "author": "Dan Harris",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danmharris/COMP3207-CW1/issues"
+  },
+  "homepage": "https://github.com/danmharris/COMP3207-CW1#readme",
+  "dependencies": {
+    "@types/uuid": "^3.4.4",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.13",
+    "@types/expect": "^1.20.3",
+    "@types/mocha": "^5.2.5",
+    "@types/sinon": "^5.0.5",
+    "expect": "^23.6.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
+    "serverless-plugin-typescript": "^1.1.5",
+    "sinon": "^6.3.5",
+    "ts-node": "^7.0.1"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ]
+  }
+}
