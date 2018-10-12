@@ -52,6 +52,47 @@ describe('Project', function() {
         })
     });
 
+    describe('getting all', function() {
+        it('should return correct values', function() {
+            const scanStub = sinon.stub(dbh, "scan").callsFake((params: any, next: any) => {
+                next(null, {
+                    Items: [
+                        {
+                            uuid: '123',
+                            name: 'A project',
+                            description: 'Project description',
+                            status: 1,
+                        },
+                        {
+                            uuid: '456',
+                            name: 'Another Project',
+                            description: 'Project description 2',
+                            status: 1,
+                        }
+                    ]
+                })
+            });
+
+            return Project.getAll(dbh).then((projects: Project[]) => {
+                expect(scanStub.called);
+                expect(projects.length).toEqual(2);
+                expect(projects[0].uuid).toEqual('123');
+                expect(projects[1].uuid).toEqual('456');
+            });
+        });
+
+        it('should return an error if API fails', function() {
+            const scanFailStub = sinon.stub(dbh, "scan").callsFake((params: any, next: any) => {
+                next("error", null);
+            });
+
+            return Project.getAll(dbh).catch((err: any) => {
+                expect(scanFailStub.called);
+                expect(err).toBe("Unable to retrieve projects");
+            });
+        });
+    });
+
     describe('Constructor', function() {
 
         it('should set properties based on parameters', function() {

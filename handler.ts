@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 import { Handler, Context, Callback } from 'aws-lambda';
-import { Project, isProjectParams } from './project';
+import { Project, ProjectParams, isProjectParams } from './project';
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -9,7 +9,11 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
 
     switch (event.httpMethod) {
         case 'GET':
-            handle(get(event.pathParameters.uuid), callback);
+            if(event.pathParameters) {
+                handle(get(event.pathParameters.uuid), callback);
+            } else {
+                handle(getAll(), callback);
+            }
             break;
         case 'POST':
             handle(post(body), callback);
@@ -49,6 +53,17 @@ function handle(promise: Promise<any>, callback: Callback) {
 function get(uuid: string): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
         return proj.getParams();
+    });
+}
+
+function getAll(): Promise<any> {
+    return Project.getAll(dynamo).then((projects: Project[]) => {
+        const params: ProjectParams[] = [];
+        for (let project of projects) {
+            params.push(project.getParams());
+        }
+
+        return params;
     });
 }
 

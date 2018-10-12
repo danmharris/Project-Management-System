@@ -15,7 +15,10 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:GetItem
         - dynamodb:UpdateItem
+        - dynamodb:Scan
       Resource: "arn:aws:dynamodb:eu-west-2:*:*"
+  apiKeys:
+    - devKey
 
 functions:
   project:
@@ -38,6 +41,10 @@ functions:
       - http:
           path: projects/{uuid}
           method: put
+          private: true
+      - http:
+          path: projects
+          method: get
           private: true
 
 resources:

@@ -117,6 +117,26 @@ class Project {
 
     }
 
+    static getAll(dbh: any): Promise<Project[]> {
+        const params = {
+            TableName: TABLE_NAME,
+        }
+
+        return new Promise((resolve, reject) => {
+            dbh.scan(params, (err: any, res: any) => {
+                if (err) {
+                    reject("Unable to retrieve projects");
+                } else {
+                    const projects: Project[] = [];
+                    for (let item of res.Items) {
+                        projects.push(new Project(item, dbh));
+                    }
+                    resolve(projects);
+                }
+            });
+        });
+    }
+
     save(): Promise<string> {
         const params = {
             TableName: TABLE_NAME,
