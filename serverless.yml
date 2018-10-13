@@ -21,15 +21,24 @@ provider:
     - devKey
 
 functions:
-  project:
-    handler: handler.projects
-    name: ${self:provider.stage}-projectHandler
-    description: Handles API calls related to projects
+  projects:
+    handler: projectHandler.projects
+    name: ${self:provider.stage}-projectsHandler
+    description: Handles API calls related to projects collection
     events:
       - http:
           path: projects
           method: post
           private: true
+      - http:
+          path: projects
+          method: get
+          private: true
+  project:
+    handler: projectHandler.project
+    name: ${self:provider.stage}-projectHandler
+    description: Handles API calls related to a project
+    events:
       - http:
           path: projects/{uuid}
           method: delete
@@ -42,9 +51,26 @@ functions:
           path: projects/{uuid}
           method: put
           private: true
+  user:
+    handler: userHandler.users
+    name: ${self:provider.stage}-userHandler
+    description: Handles API calls related to users
+    events:
       - http:
-          path: projects
+          path: users
+          method: post
+          private: true
+      - http:
+          path: users/{sub}
           method: get
+          private: true
+      - http:
+          path: users
+          method: get
+          private: true
+      - http:
+          path: users/{sub}
+          method: put
           private: true
 
 resources:
@@ -58,6 +84,19 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: users
+        AttributeDefinitions:
+          - AttributeName: sub
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sub
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
