@@ -21,15 +21,24 @@ provider:
     - devKey
 
 functions:
-  project:
+  projects:
     handler: projectHandler.projects
-    name: ${self:provider.stage}-projectHandler
-    description: Handles API calls related to projects
+    name: ${self:provider.stage}-projectsHandler
+    description: Handles API calls related to projects collection
     events:
       - http:
           path: projects
           method: post
           private: true
+      - http:
+          path: projects
+          method: get
+          private: true
+  project:
+    handler: projectHandler.project
+    name: ${self:provider.stage}-projectHandler
+    description: Handles API calls related to a project
+    events:
       - http:
           path: projects/{uuid}
           method: delete
@@ -41,10 +50,6 @@ functions:
       - http:
           path: projects/{uuid}
           method: put
-          private: true
-      - http:
-          path: projects
-          method: get
           private: true
   user:
     handler: userHandler.users

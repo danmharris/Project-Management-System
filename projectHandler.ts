@@ -10,20 +10,30 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
 
     switch (event.httpMethod) {
         case 'GET':
-            if(event.pathParameters) {
-                handle(get(event.pathParameters.uuid), callback);
-            } else {
-                handle(getAll(), callback);
-            }
+            handle(getAll(), callback);
             break;
         case 'POST':
             handle(post(body), callback);
             break;
+        default:
+            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            break;
+    }
+};
+
+const project: Handler = (event: any, context: Context, callback: Callback) => {
+    const body = JSON.parse(event.body);
+    const uuid = event.pathParameters.uuid;
+
+    switch(event.httpMethod) {
+        case 'GET':
+            handle(get(uuid), callback);
+            break;
         case 'PUT':
-            handle(put(event.pathParameters.uuid, body), callback);
+            handle(put(uuid, body), callback);
             break;
         case 'DELETE':
-            handle(remove(event.pathParameters.uuid), callback);
+            handle(remove(uuid), callback);
             break;
         default:
             handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
@@ -77,4 +87,4 @@ function post(body: any): Promise<any> {
     });
 }
 
-export { projects };
+export { projects, project };
