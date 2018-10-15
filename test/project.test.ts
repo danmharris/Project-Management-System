@@ -13,6 +13,7 @@ describe('Project', function() {
         params = {
             name: 'name',
             description: 'description',
+            manager: "abc",
         };
         dbh = new AWS.DynamoDB.DocumentClient();
         proj = new Project(params, dbh);
@@ -27,6 +28,7 @@ describe('Project', function() {
                         name: 'A project',
                         description: 'Project description',
                         status: 1,
+                        manager: "abc",
                     }
                 })
             });
@@ -37,6 +39,7 @@ describe('Project', function() {
                 expect(proj.name).toBe("A project");
                 expect(proj.description).toBe("Project description");
                 expect(proj.status).toBe(ProjectStatus.ACTIVE);
+                expect(proj.manager).toEqual("abc");
             });
         });
 
@@ -62,12 +65,14 @@ describe('Project', function() {
                             name: 'A project',
                             description: 'Project description',
                             status: 1,
+                            manager: "abc",
                         },
                         {
                             uuid: '456',
                             name: 'Another Project',
                             description: 'Project description 2',
                             status: 1,
+                            manager: "abc",
                         }
                     ]
                 })
@@ -98,6 +103,7 @@ describe('Project', function() {
         it('should set properties based on parameters', function() {
             expect(proj.name).toEqual('name');
             expect(proj.description).toEqual('description');
+            expect(proj.manager).toEqual("abc");
         });
 
         it('should set the UUID if provided', function() {
@@ -131,6 +137,8 @@ describe('Project', function() {
             expect(proj.description).toEqual('new description');
             proj.status = ProjectStatus.DONE;
             expect(proj.status).toEqual(ProjectStatus.DONE);
+            proj.manager = "123";
+            expect(proj.manager).toEqual("123");
         });
     });
 
@@ -165,11 +173,21 @@ describe('Project', function() {
             expect(proj.status).toEqual(ProjectStatus.DONE);
         });
 
+        it('should update the manager if provided', () => {
+            const newParams = {
+                manager: "123",
+            };
+
+            proj.setParams(newParams);
+            expect(proj.manager).toEqual("123");
+        });
+
         it('should update combinations of fields', function() {
             const newParams = {
                 name: 'new name',
                 description: 'new description',
                 status: ProjectStatus.DONE,
+                manager: "123",
             }
 
             proj.setParams(newParams);
@@ -177,6 +195,7 @@ describe('Project', function() {
             expect(proj.name).toEqual('new name');
             expect(proj.description).toEqual('new description');
             expect(proj.status).toEqual(ProjectStatus.DONE);
+            expect(proj.manager).toEqual("123");
         });
 
         it('should return all parameters', function() {
@@ -190,6 +209,7 @@ describe('Project', function() {
             expect(retrievedParams.name).toEqual('name');
             expect(retrievedParams.description).toEqual('description');
             expect(retrievedParams.status).toEqual(ProjectStatus.DONE);
+            expect(retrievedParams.manager).toEqual("abc");
         })
     });
 
@@ -306,6 +326,7 @@ describe('Project', function() {
                 description: 'description',
                 uuid: '123',
                 status: 2,
+                manager: "abc",
             }
         });
 

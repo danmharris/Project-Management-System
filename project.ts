@@ -14,10 +14,11 @@ interface ProjectParams {
     description: string,
     status?: ProjectStatus,
     developers?: string[],
+    manager: string,
 }
 
 const isProjectParams: (obj: any) => Boolean = function (obj:any) {
-    if (!obj.name || !obj.description) {
+    if (!obj.name || !obj.description || !obj.manager) {
         return false;
     }
 
@@ -50,6 +51,7 @@ class Project {
     private _description: string;
     private _status: ProjectStatus;
     private _developers: string[];
+    private _manager: string;
     private dbh: any;
 
     constructor(params: ProjectParams, dbh: any) {
@@ -73,6 +75,8 @@ class Project {
         } else {
             this._developers = [];
         }
+
+        this._manager = params.manager;
 
         this.dbh = dbh;
     }
@@ -107,6 +111,14 @@ class Project {
 
     get developers() {
         return this._developers;
+    }
+
+    get manager() {
+        return this._manager;
+    }
+
+    set manager(newManager: string) {
+        this._manager = newManager;
     }
 
     static getById(uuid: string, dbh: any): Promise<Project> {
@@ -157,6 +169,7 @@ class Project {
                 "name": this.name,
                 "description": this.description,
                 "status": this.status,
+                "manager": this.manager,
             }
         };
 
@@ -177,7 +190,7 @@ class Project {
             Key: {
                 uuid: this.uuid
             },
-            UpdateExpression: "set #name=:n, description=:d, status=:s",
+            UpdateExpression: "set #name=:n, description=:d, status=:s, manager=:m",
             ExpressionAttributeNames: {
                 "#name": "name"
             },
@@ -185,6 +198,7 @@ class Project {
                 ":n" : this.name,
                 ":d" : this.description,
                 ":s" : this.status,
+                ":m" : this.manager,
             }
         }
 
@@ -281,6 +295,10 @@ class Project {
                 this.status = params.status;
             }
         }
+
+        if (params.manager) {
+            this.manager = params.manager;
+        }
     }
 
     getParams(): ProjectParams {
@@ -290,6 +308,7 @@ class Project {
             description: this.description,
             status: this.status,
             developers: this.developers,
+            manager: this.manager,
         };
     }
 }
