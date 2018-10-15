@@ -120,6 +120,7 @@ describe('Project', function() {
         it('should set status to PENDING if not provided', function() {
             expect(proj.status).toEqual(ProjectStatus.PENDING);
         });
+
     });
 
     describe('Setters', function() {
@@ -258,6 +259,40 @@ describe('Project', function() {
             proj.delete().catch((err: string) => {
                 expect(failDeleteStub.called);
                 expect(err).toEqual('Unable to delete project');
+            });
+        });
+    });
+
+    describe('add/remove developer', () => {
+        xit('should resolve if successful', () => {
+            const addDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
+                next(null, 'updated');
+            });
+
+            proj.addDevelopers(["abc"]).then(() => {
+                expect(addDeveloperStub.called);
+                expect(proj.developers).toEqual(["abc"]);
+            });
+
+            proj.removeDevelopers(["abc"]).then(() => {
+                expect(addDeveloperStub.called);
+                expect(proj.developers).toEqual([]);
+            });
+        });
+
+        it('should return error if database failure', () => {
+            const addDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
+                next('err', null);
+            });
+
+            proj.addDevelopers(["abc"]).catch((err) => {
+                expect(addDeveloperStub.called);
+                expect(err).toEqual("Unable to add developers to project");
+            });
+
+            proj.removeDevelopers(["abc"]).catch((err) => {
+                expect(addDeveloperStub.called);
+                expect(err).toEqual("Unable to remove developers from project");
             });
         });
     });

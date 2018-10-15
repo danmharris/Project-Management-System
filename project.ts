@@ -13,6 +13,7 @@ interface ProjectParams {
     name: string,
     description: string,
     status?: ProjectStatus,
+    developers?: string[],
 }
 
 const isProjectParams: (obj: any) => Boolean = function (obj:any) {
@@ -48,6 +49,7 @@ class Project {
     private _name: string;
     private _description: string;
     private _status: ProjectStatus;
+    private _developers: string[];
     private dbh: any;
 
     constructor(params: ProjectParams, dbh: any) {
@@ -64,6 +66,12 @@ class Project {
             this._uuid = params.uuid;
         } else {
             this._uuid = uuidv1();
+        }
+
+        if (params.developers) {
+            this._developers = params.developers;
+        } else {
+            this._developers = [];
         }
 
         this.dbh = dbh;
@@ -95,6 +103,10 @@ class Project {
 
     set status(newStatus: ProjectStatus) {
         this._status = newStatus;
+    }
+
+    get developers() {
+        return this._developers;
     }
 
     static getById(uuid: string, dbh: any): Promise<Project> {
@@ -207,6 +219,54 @@ class Project {
         });
     }
 
+    addDevelopers(subs: string[]): Promise<any> {
+        const params = {
+            TableName: TABLE_NAME,
+            Key: {
+                "uuid": this.uuid,
+            },
+            UpdateExpression: "add developers :d",
+            ExpressionAttributeValues: {
+                ":d": this.dbh.createSet(subs),
+            },
+        };
+
+        return new Promise((resolve, reject) => {
+            this.dbh.update(params, (err: any, res: any) => {
+                if(err) {
+                    reject("Unable to add developers to project");
+                } else {
+                    this._developers.push(...subs);
+                    resolve(res);
+                }
+            });
+        });
+    }
+
+    removeDevelopers(subs: string[]): Promise<any> {
+        const params = {
+            TableName: TABLE_NAME,
+            Key: {
+                "uuid": this.uuid,
+            },
+            UpdateExpression: "delete developers :d",
+            ExpressionAttributeValues: {
+                ":d": this.dbh.createSet(subs),
+            },
+        };
+
+        return new Promise((resolve, reject) => {
+            this.dbh.update(params, (err: any, res: any) => {
+                if(err) {
+                    reject('Unable to remove developers from project');
+                } else {
+                    this._developers = this._developers.filter(dev => subs.indexOf(dev) < 0);
+                    resolve(res);
+                }
+            });
+        });
+    }
+
     setParams(params: any) {
         if (params.name) {
             this.name = params.name;
@@ -229,6 +289,7 @@ class Project {
             name: this.name,
             description: this.description,
             status: this.status,
+            developers: this.developers,
         };
     }
 }

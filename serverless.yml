@@ -51,6 +51,19 @@ functions:
           path: projects/{uuid}
           method: put
           private: true
+  projectDevelopers:
+    handler: projectHandler.projectDevelopers
+    name: ${self:provider.stage}-projectDevelopersHandler
+    descrition: Handles API calls related to developers on a project
+    events:
+      - http:
+          path: projects/{uuid}/developers
+          method: post
+          private: true
+      - http:
+          path: projects/{uuid}/developers
+          method: delete
+          private: true
   user:
     handler: userHandler.users
     name: ${self:provider.stage}-userHandler
