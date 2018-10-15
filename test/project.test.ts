@@ -127,6 +127,11 @@ describe('Project', function() {
             expect(proj.status).toEqual(ProjectStatus.PENDING);
         });
 
+        it('should set developers if provided', () => {
+            params.developers = ["abc"];
+            proj = new Project(params, null);
+            expect(proj.developers).toEqual(["abc"]);
+        });
     });
 
     describe('Setters', function() {
@@ -284,34 +289,48 @@ describe('Project', function() {
     });
 
     describe('add/remove developer', () => {
-        xit('should resolve if successful', () => {
+        it('should resolve if successfully added', () => {
             const addDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
                 next(null, 'updated');
             });
 
-            proj.addDevelopers(["abc"]).then(() => {
+            return proj.addDevelopers(["abc"]).then(() => {
                 expect(addDeveloperStub.called);
                 expect(proj.developers).toEqual(["abc"]);
             });
+        });
 
-            proj.removeDevelopers(["abc"]).then(() => {
-                expect(addDeveloperStub.called);
+        it('should resolve if successfully removed', () => {
+            const removeDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
+                next(null, 'updated');
+            });
+            params.developers = ["abc"];
+            proj = new Project(params, dbh);
+
+            return proj.removeDevelopers(["abc"]).then(() => {
+                expect(removeDeveloperStub.called);
                 expect(proj.developers).toEqual([]);
             });
         });
 
-        it('should return error if database failure', () => {
-            const addDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
+        it('should return error if database failure on add', () => {
+            const failAddDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
                 next('err', null);
             });
 
-            proj.addDevelopers(["abc"]).catch((err) => {
-                expect(addDeveloperStub.called);
+            return proj.addDevelopers(["abc"]).catch((err) => {
+                expect(failAddDeveloperStub.called);
                 expect(err).toEqual("Unable to add developers to project");
             });
+        });
 
-            proj.removeDevelopers(["abc"]).catch((err) => {
-                expect(addDeveloperStub.called);
+        it('should return error if database failure on remove', () => {
+            const failRemoveDeveloperStub = sinon.stub(dbh, 'update').callsFake((params, next) => {
+                next('err', null);
+            });
+
+            return proj.removeDevelopers(["abc"]).catch((err) => {
+                expect(failRemoveDeveloperStub.called);
                 expect(err).toEqual("Unable to remove developers from project");
             });
         });
