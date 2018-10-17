@@ -1,4 +1,4 @@
-import * as uuidv1 from 'uuid/v1';
+import * as uuidv1 from "uuid/v1";
 
 const TABLE_NAME = "projects";
 
@@ -9,15 +9,15 @@ enum ProjectStatus {
 }
 
 interface ProjectParams {
-    uuid?: string,
-    name: string,
-    description: string,
-    status?: ProjectStatus,
-    developers?: string[],
-    manager: string,
+    uuid?: string;
+    name: string;
+    description: string;
+    status?: ProjectStatus;
+    developers?: string[];
+    manager: string;
 }
 
-const isProjectParams: (obj: any) => Boolean = function (obj:any) {
+const isProjectParams: (obj: any) => boolean = (obj: any) => {
     if (!obj.name || !obj.description || !obj.manager) {
         return false;
     }
@@ -43,9 +43,49 @@ const isProjectParams: (obj: any) => Boolean = function (obj:any) {
     }
 
     return true;
-}
+};
 
 class Project {
+    public static getById(uuid: string, dbh: any): Promise<Project> {
+        const params = {
+            TableName: TABLE_NAME,
+            Key: {
+                uuid,
+            },
+        };
+
+        return new Promise((resolve, reject) => {
+            dbh.get(params, (err: any, res: any) => {
+                if (err) {
+                    reject("Unable to retrieve project");
+                } else {
+                    resolve(new Project(res.Item, dbh));
+                }
+            });
+        });
+
+    }
+
+    public static getAll(dbh: any): Promise<Project[]> {
+        const params = {
+            TableName: TABLE_NAME,
+        };
+
+        return new Promise((resolve, reject) => {
+            dbh.scan(params, (err: any, res: any) => {
+                if (err) {
+                    reject("Unable to retrieve projects");
+                } else {
+                    const projects: Project[] = [];
+                    for (const item of res.Items) {
+                        projects.push(new Project(item, dbh));
+                    }
+                    resolve(projects);
+                }
+            });
+        });
+    }
+
     private _uuid: string;
     private _name: string;
     private _description: string;
@@ -121,86 +161,46 @@ class Project {
         this._manager = newManager;
     }
 
-    static getById(uuid: string, dbh: any): Promise<Project> {
-        const params = {
-            TableName: TABLE_NAME,
-            Key: {
-                "uuid": uuid
-            }
-        };
-
-        return new Promise((resolve, reject) => {
-            dbh.get(params, (err: any, res: any) => {
-                if (err) {
-                    reject("Unable to retrieve project");
-                } else {
-                    resolve(new Project(res.Item, dbh));
-                }
-            });
-        });
-
-    }
-
-    static getAll(dbh: any): Promise<Project[]> {
-        const params = {
-            TableName: TABLE_NAME,
-        }
-
-        return new Promise((resolve, reject) => {
-            dbh.scan(params, (err: any, res: any) => {
-                if (err) {
-                    reject("Unable to retrieve projects");
-                } else {
-                    const projects: Project[] = [];
-                    for (let item of res.Items) {
-                        projects.push(new Project(item, dbh));
-                    }
-                    resolve(projects);
-                }
-            });
-        });
-    }
-
-    save(): Promise<string> {
+    public save(): Promise<string> {
         const params = {
             TableName: TABLE_NAME,
             Item: {
-                "uuid": this.uuid,
-                "name": this.name,
-                "description": this.description,
-                "status": this.status,
-                "manager": this.manager,
-            }
+                description: this.description,
+                manager: this.manager,
+                name: this.name,
+                status: this.status,
+                uuid: this.uuid,
+            },
         };
 
         return new Promise((resolve, reject) => {
-            this.dbh.put(params, (err:any, res:any) => {
+            this.dbh.put(params, (err: any, res: any) => {
                 if (err) {
                     reject("Error creating project");
                 } else {
                     resolve(this.uuid);
                 }
-            })
+            });
         });
     }
 
-    update(): Promise<any> {
+    public update(): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
             Key: {
-                uuid: this.uuid
+                uuid: this.uuid,
             },
             UpdateExpression: "set #name=:n, description=:d, status=:s, manager=:m",
             ExpressionAttributeNames: {
-                "#name": "name"
+                "#name": "name",
             },
             ExpressionAttributeValues: {
                 ":n" : this.name,
                 ":d" : this.description,
                 ":s" : this.status,
                 ":m" : this.manager,
-            }
-        }
+            },
+        };
 
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
@@ -214,12 +214,12 @@ class Project {
         });
     }
 
-    delete(): Promise<any> {
+    public delete(): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
             Key: {
-                "uuid": this.uuid
-            }
+                uuid: this.uuid,
+            },
         };
 
         return new Promise((resolve, reject) => {
@@ -233,11 +233,11 @@ class Project {
         });
     }
 
-    addDevelopers(subs: string[]): Promise<any> {
+    public addDevelopers(subs: string[]): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
             Key: {
-                "uuid": this.uuid,
+                uuid: this.uuid,
             },
             UpdateExpression: "add developers :d",
             ExpressionAttributeValues: {
@@ -247,7 +247,7 @@ class Project {
 
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
-                if(err) {
+                if (err) {
                     reject("Unable to add developers to project");
                 } else {
                     this._developers.push(...subs);
@@ -257,11 +257,11 @@ class Project {
         });
     }
 
-    removeDevelopers(subs: string[]): Promise<any> {
+    public removeDevelopers(subs: string[]): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
             Key: {
-                "uuid": this.uuid,
+                uuid: this.uuid,
             },
             UpdateExpression: "delete developers :d",
             ExpressionAttributeValues: {
@@ -271,17 +271,17 @@ class Project {
 
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
-                if(err) {
-                    reject('Unable to remove developers from project');
+                if (err) {
+                    reject("Unable to remove developers from project");
                 } else {
-                    this._developers = this._developers.filter(dev => subs.indexOf(dev) < 0);
+                    this._developers = this._developers.filter((dev) => subs.indexOf(dev) < 0);
                     resolve(res);
                 }
             });
         });
     }
 
-    setParams(params: any) {
+    public setParams(params: any) {
         if (params.name) {
             this.name = params.name;
         }
@@ -301,7 +301,7 @@ class Project {
         }
     }
 
-    getParams(): ProjectParams {
+    public getParams(): ProjectParams {
         return {
             uuid: this.uuid,
             name: this.name,

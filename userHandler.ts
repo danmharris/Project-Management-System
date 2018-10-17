@@ -1,7 +1,8 @@
-import * as AWS from 'aws-sdk';
-import { Handler, Context, Callback } from 'aws-lambda';
-import { handle } from './handler';
-import { User } from './user';
+import { Callback, Context, Handler} from "aws-lambda";
+import * as AWS from "aws-sdk";
+
+import { handle } from "./handler";
+import { User } from "./user";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -9,14 +10,14 @@ const users: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
 
     switch (event.httpMethod) {
-        case 'POST':
+        case "POST":
             handle(post(body), callback);
             break;
-        case 'PUT':
+        case "PUT":
             handle(put(event.pathParameters.sub, body), callback);
             break;
-        case 'GET':
-            if(event.pathParameters) {
+        case "GET":
+            if (event.pathParameters) {
                 handle(get(event.pathParameters.sub), callback);
             } else {
                 handle(getAll(), callback);
@@ -30,7 +31,7 @@ const users: Handler = (event: any, context: Context, callback: Callback) => {
 
 function post(body: any) {
     return new User(body, dynamo).save().then((sub: string) => {
-        return { sub: sub };
+        return { sub };
     });
 }
 
@@ -41,8 +42,8 @@ function get(sub: string) {
 }
 
 function getAll() {
-    return User.getAll(dynamo).then((users: User[]) => {
-        return users.map((user: User) => user.getParams);
+    return User.getAll(dynamo).then((dbUsers: User[]) => {
+        return dbUsers.map((user: User) => user.getParams);
     });
 }
 

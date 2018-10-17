@@ -1,7 +1,8 @@
-import * as AWS from 'aws-sdk';
-import { Handler, Context, Callback } from 'aws-lambda';
-import { Project, ProjectParams, isProjectParams } from './project';
-import { handle } from './handler';
+import { Callback, Context, Handler } from "aws-lambda";
+import * as AWS from "aws-sdk";
+
+import { handle } from "./handler";
+import { isProjectParams, Project, ProjectParams } from "./project";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -9,10 +10,10 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
     const body = JSON.parse(event.body);
 
     switch (event.httpMethod) {
-        case 'GET':
+        case "GET":
             handle(getAll(), callback);
             break;
-        case 'POST':
+        case "POST":
             handle(post(body), callback);
             break;
         default:
@@ -25,14 +26,14 @@ const project: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
     const uuid = event.pathParameters.uuid;
 
-    switch(event.httpMethod) {
-        case 'GET':
+    switch (event.httpMethod) {
+        case "GET":
             handle(get(uuid), callback);
             break;
-        case 'PUT':
+        case "PUT":
             handle(put(uuid, body), callback);
             break;
-        case 'DELETE':
+        case "DELETE":
             handle(remove(uuid), callback);
             break;
         default:
@@ -45,11 +46,11 @@ const projectDevelopers: Handler = (event: any, context: Context, callback: Call
     const body = JSON.parse(event.body);
     const uuid = event.pathParameters.uuid;
 
-    switch(event.httpMethod) {
-        case 'POST':
+    switch (event.httpMethod) {
+        case "POST":
             handle(addDevelopers(uuid, body), callback);
             break;
-        case 'DELETE':
+        case "DELETE":
             handle(removeDevelopers(uuid, body), callback);
             break;
         default:
@@ -65,19 +66,14 @@ function get(uuid: string): Promise<any> {
 }
 
 function getAll(): Promise<any> {
-    return Project.getAll(dynamo).then((projects: Project[]) => {
-        const params: ProjectParams[] = [];
-        for (let project of projects) {
-            params.push(project.getParams());
-        }
-
-        return params;
+    return Project.getAll(dynamo).then((dbProjects: Project[]) => {
+        return dbProjects.map((proj: Project) => proj.getParams());
     });
 }
 
 function put(uuid: string, body: any): Promise<any> {
-    if(!isProjectParams(body)) {
-        return Promise.reject('Invalid request');
+    if (!isProjectParams(body)) {
+        return Promise.reject("Invalid request");
     }
 
     return Project.getById(uuid, dynamo).then((proj: Project) => {
@@ -93,12 +89,12 @@ function remove(uuid: string): Promise<any> {
 }
 
 function post(body: any): Promise<any> {
-    if(!isProjectParams(body)) {
-        return Promise.reject('Invalid request');
+    if (!isProjectParams(body)) {
+        return Promise.reject("Invalid request");
     }
 
     return new Project(body, dynamo).save().then((uuid: string) => {
-        return { uuid: uuid };
+        return { uuid };
     });
 }
 
