@@ -41,7 +41,22 @@ const project: Handler = (event: any, context: Context, callback: Callback) => {
     }
 };
 
+const projectDevelopers: Handler = (event: any, context: Context, callback: Callback) => {
+    const body = JSON.parse(event.body);
+    const uuid = event.pathParameters.uuid;
 
+    switch(event.httpMethod) {
+        case 'POST':
+            handle(addDevelopers(uuid, body), callback);
+            break;
+        case 'DELETE':
+            handle(removeDevelopers(uuid, body), callback);
+            break;
+        default:
+            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            break;
+    }
+};
 
 function get(uuid: string): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
@@ -87,4 +102,16 @@ function post(body: any): Promise<any> {
     });
 }
 
-export { projects, project };
+function addDevelopers(uuid: string, body: any): Promise<any> {
+    return Project.getById(uuid, dynamo).then((proj: Project) => {
+        return proj.addDevelopers(body.subs);
+    });
+}
+
+function removeDevelopers(uuid: string, body: any): Promise<any> {
+    return Project.getById(uuid, dynamo).then((proj: Project) => {
+        return proj.removeDevelopers(body.subs);
+    });
+}
+
+export { projects, project, projectDevelopers };
