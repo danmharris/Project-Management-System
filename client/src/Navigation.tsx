@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import { Nav, Navbar, NavDropdown, NavItem } from 'react-bootstrap';
 
 class Navigation extends React.Component {
