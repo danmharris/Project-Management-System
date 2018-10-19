@@ -1,9 +1,12 @@
 import * as React from 'react';
-import { Button, ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+import { Alert, Button, ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+
+import ProjectService from './service/project';
 
 interface NewProjectState {
     name: string;
     description: string;
+    err: string;
 }
 
 class NewProject extends React.Component<{}, NewProjectState> {
@@ -17,13 +20,20 @@ class NewProject extends React.Component<{}, NewProjectState> {
 
         this.state = {
             description: '',
+            err: '',
             name: '',
         };
     }
 
     public render() {
+        let errAlert: any;
+        if (this.state.err) {
+            errAlert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <form>
+                {errAlert}
                 <FormGroup
                     controlId="form-name"
                     validationState={this.validateName()}
@@ -88,6 +98,16 @@ class NewProject extends React.Component<{}, NewProjectState> {
 
     private handleSubmit(e: any): void {
         // Submit form to API and redirect if successful
+        ProjectService.newProject({
+            description: this.state.description,
+            manager: 'testUserSub',
+            name: this.state.name,
+        }).then((res: any) => {
+            const uuid = res.uuid;
+            window.location.replace(`/projects/${uuid}`);
+        }).catch((err: any) => {
+            this.setState({ err: 'Unable to save project. Please try again later' });
+        });
     }
 
 }
