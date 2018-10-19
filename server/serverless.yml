@@ -114,6 +114,24 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    userPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: users
+        Schema:
+          - Name: email
+            Required: true
+          - Name: name
+            Required: true
+          - Name: address
+            Required: true
+    userPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ProjectManager
+        UserPoolId:
+          Ref: userPool
+
 
 package:
   exclude:
