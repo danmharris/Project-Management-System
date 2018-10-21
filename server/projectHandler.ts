@@ -2,7 +2,7 @@ import { Callback, Context, Handler } from "aws-lambda";
 import * as AWS from "aws-sdk";
 
 import { handle } from "./handler";
-import { isProjectParams, Project, ProjectParams } from "./project";
+import { isProjectParams, Project } from "./project";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 

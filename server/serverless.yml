@@ -29,11 +29,13 @@ functions:
       - http:
           path: projects
           method: post
-          private: true
+          authorizer:
+            arn:  arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: projects
           method: get
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
   project:
     handler: projectHandler.project
     name: ${self:provider.stage}-projectHandler
@@ -42,15 +44,18 @@ functions:
       - http:
           path: projects/{uuid}
           method: delete
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: projects/{uuid}
           method: get
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: projects/{uuid}
           method: put
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
   projectDevelopers:
     handler: projectHandler.projectDevelopers
     name: ${self:provider.stage}-projectDevelopersHandler
@@ -59,11 +64,13 @@ functions:
       - http:
           path: projects/{uuid}/developers
           method: post
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: projects/{uuid}/developers
           method: delete
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
   user:
     handler: userHandler.users
     name: ${self:provider.stage}-userHandler
@@ -72,19 +79,23 @@ functions:
       - http:
           path: users
           method: post
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: users/{sub}
           method: get
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: users
           method: get
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
       - http:
           path: users/{sub}
           method: put
-          private: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
 
 resources:
   Resources:
