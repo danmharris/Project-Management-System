@@ -3,6 +3,8 @@ import * as queryString from 'query-string';
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
+import CookieService from './service/cookie';
+
 import config from './config/config';
 import Navigation from './Navigation';
 import NewProject from './NewProject';
@@ -18,7 +20,7 @@ class App extends React.Component {
     if (parsedHash.id_token) {
       Cookies.set('jwt', parsedHash.id_token);
       location.hash = '';
-    } else if (Cookies.get("jwt") === undefined) {
+    } else if (CookieService.isExpired()) {
       window.location.replace(`${config.LOGIN_URL}&redirect_uri=${window.location}`);
     }
 

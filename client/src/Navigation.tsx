@@ -1,8 +1,12 @@
 import * as React from 'react';
 import { Nav, Navbar, NavDropdown, NavItem } from 'react-bootstrap';
 
+import CookieService from './service/cookie';
+
 class Navigation extends React.Component {
     public render() {
+        const name = CookieService.getName();
+
         return (
           <div className="App">
             <Navbar>
@@ -22,7 +26,7 @@ class Navigation extends React.Component {
                   </NavItem>
                 </Nav>
                 <Nav pullRight={true}>
-                  <NavDropdown title="User" id="user-dropdown">
+                  <NavDropdown title={name} id="user-dropdown">
                     <NavItem href="#">
                       My Profile
                     </NavItem>
