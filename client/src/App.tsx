@@ -1,19 +1,36 @@
+import * as Cookies from 'js-cookie';
+import * as queryString from 'query-string';
 import * as React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
+import config from './config/config';
 import Navigation from './Navigation';
-import NewProject from './NewProject'
+import NewProject from './NewProject';
+import Projects from './Projects';
+
 
 import './App.css';
 
 class App extends React.Component {
   public render() {
+    const parsedHash = queryString.parse(location.hash);
+    if (parsedHash.id_token) {
+      Cookies.set('jwt', parsedHash.id_token);
+      location.hash = '';
+    } else if (Cookies.get("jwt") === undefined) {
+      window.location.replace(`${config.LOGIN_URL}&redirect_uri=${window.location}`);
+    }
+
+
     return (
       <div className="App">
         <Navigation />
         <div className="Container">
           <Router>
-            <Route path="/new_project" component={NewProject} />
+            <Switch>
+              <Route path="/projects" component={Projects} />
+              <Route path="/new_project" component={NewProject} />
+            </Switch>
           </Router>
         </div>
       </div>

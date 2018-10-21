@@ -100,7 +100,6 @@ class NewProject extends React.Component<{}, NewProjectState> {
         // Submit form to API and redirect if successful
         ProjectService.newProject({
             description: this.state.description,
-            manager: 'testUserSub',
             name: this.state.name,
         }).then((res: any) => {
             const uuid = res.uuid;

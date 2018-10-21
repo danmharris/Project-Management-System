@@ -33,11 +33,13 @@ functions:
       - http:
           path: projects
           method: post
+          cors: true
           authorizer:
             arn:  arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects
           method: get
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   project:
@@ -48,16 +50,19 @@ functions:
       - http:
           path: projects/{uuid}
           method: delete
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects/{uuid}
           method: get
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects/{uuid}
           method: put
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   projectDevelopers:
@@ -68,11 +73,13 @@ functions:
       - http:
           path: projects/{uuid}/developers
           method: post
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects/{uuid}/developers
           method: delete
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   user:
@@ -83,6 +90,7 @@ functions:
       - http:
           path: users
           method: get
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:

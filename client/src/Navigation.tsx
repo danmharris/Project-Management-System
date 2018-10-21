@@ -17,7 +17,7 @@ class Navigation extends React.Component {
                   <NavItem href="#">
                     My Projects
                   </NavItem>
-                  <NavItem href="#">
+                  <NavItem href="/projects">
                     Projects
                   </NavItem>
                 </Nav>

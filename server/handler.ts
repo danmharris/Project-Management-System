@@ -6,6 +6,7 @@ const handle = (promise: Promise<any>, callback: Callback) => {
             body: JSON.stringify(res),
             headers: {
                 "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": '*',
             },
             statusCode: "200",
         });
