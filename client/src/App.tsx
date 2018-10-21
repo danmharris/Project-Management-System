@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import config from './config/config';
 import Navigation from './Navigation';
 import NewProject from './NewProject';
+import Project from './Project';
 import Projects from './Projects';
 
 
@@ -28,6 +29,7 @@ class App extends React.Component {
         <div className="Container">
           <Router>
             <Switch>
+              <Route path="/projects/:uuid" component={Project} />
               <Route path="/projects" component={Projects} />
               <Route path="/new_project" component={NewProject} />
             </Switch>

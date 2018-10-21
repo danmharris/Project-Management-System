@@ -12,6 +12,10 @@ class ProjectService {
         return axios.get(`${config.BASE_URL}/projects`, this.getTokenHeader());
     }
 
+    public static getByUUID(uuid: string) {
+        return axios.get(`${config.BASE_URL}/projects/${uuid}`, this.getTokenHeader());
+    }
+
     private static getTokenHeader() {
         return {
             headers: {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, Panel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-import Project from './service/project';
+import ProjectService from './service/project';
 
 interface ProjectsState {
     err: string,
@@ -20,7 +20,7 @@ class Projects extends React.Component<{}, ProjectsState> {
 
         this.generateProjectList = this.generateProjectList.bind(this);
 
-        Project.getAll().then((res: any) => {
+        ProjectService.getAll().then((res: any) => {
             this.setState({ projects: res.data });
         });
 
