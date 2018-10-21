@@ -5,9 +5,11 @@ import { handle } from "./handler";
 import { User } from "./user";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
+let user: any;
 
 const users: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
+    user = event.requestContext.authorizer.claims.sub;
 
     switch (event.httpMethod) {
         case "POST":
@@ -36,21 +38,25 @@ function post(body: any) {
 }
 
 function get(sub: string) {
-    return User.getById(sub, dynamo).then((user: User) => {
-        return user.getParams();
+    return User.getById(sub, dynamo).then((dbUser: User) => {
+        return dbUser.getParams();
     });
 }
 
 function getAll() {
     return User.getAll(dynamo).then((dbUsers: User[]) => {
-        return dbUsers.map((user: User) => user.getParams);
+        return dbUsers.map((dbUser: User) => dbUser.getParams);
     });
 }
 
 function put(sub: string, body: any) {
-    return User.getById(sub, dynamo).then((user: User) => {
-        user.setParams(body);
-        return user.update();
+    return User.getById(sub, dynamo).then((dbUser: User) => {
+        if (dbUser.sub !== user) {
+            return Promise.reject("Unauthorized");
+        }
+
+        dbUser.setParams(body);
+        return dbUser.update();
     });
 }
 

@@ -190,9 +190,10 @@ class Project {
             Key: {
                 uuid: this.uuid,
             },
-            UpdateExpression: "set #name=:n, description=:d, status=:s, manager=:m",
+            UpdateExpression: "set #name=:n, description=:d, #status=:s, manager=:m",
             ExpressionAttributeNames: {
                 "#name": "name",
+                "#status": "status",
             },
             ExpressionAttributeValues: {
                 ":n" : this.name,
