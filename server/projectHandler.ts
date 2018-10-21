@@ -2,12 +2,14 @@ import { Callback, Context, Handler } from "aws-lambda";
 import * as AWS from "aws-sdk";
 
 import { handle } from "./handler";
-import { isProjectParams, Project, ProjectParams } from "./project";
+import { isProjectParams, Project } from "./project";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
+let user: string;
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
+    user = event.requestContext.authorizer.claims.sub;
 
     switch (event.httpMethod) {
         case "GET":
@@ -24,6 +26,7 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
 
 const project: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
+    user = event.requestContext.authorizer.claims.sub;
     const uuid = event.pathParameters.uuid;
 
     switch (event.httpMethod) {
@@ -44,6 +47,7 @@ const project: Handler = (event: any, context: Context, callback: Callback) => {
 
 const projectDevelopers: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
+    user = event.requestContext.authorizer.claims.sub;
     const uuid = event.pathParameters.uuid;
 
     switch (event.httpMethod) {
@@ -72,11 +76,11 @@ function getAll(): Promise<any> {
 }
 
 function put(uuid: string, body: any): Promise<any> {
-    if (!isProjectParams(body)) {
-        return Promise.reject("Invalid request");
-    }
-
     return Project.getById(uuid, dynamo).then((proj: Project) => {
+        if (proj.manager !== user) {
+            return Promise.reject("Unauthorized");
+        }
+
         proj.setParams(body);
         return proj.update();
     });
@@ -84,11 +88,17 @@ function put(uuid: string, body: any): Promise<any> {
 
 function remove(uuid: string): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
+        if (proj.manager !== user) {
+            return Promise.reject("Unauthorized");
+        }
+
         return proj.delete();
     });
 }
 
 function post(body: any): Promise<any> {
+    body.manager = user;
+
     if (!isProjectParams(body)) {
         return Promise.reject("Invalid request");
     }
@@ -100,12 +110,20 @@ function post(body: any): Promise<any> {
 
 function addDevelopers(uuid: string, body: any): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
+        if (proj.manager !== user && body.subs.indexOf(user) < 0) {
+            return Promise.reject("Unauthorized");
+        }
+
         return proj.addDevelopers(body.subs);
     });
 }
 
 function removeDevelopers(uuid: string, body: any): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
+        if (proj.manager !== user && body.subs.indexOf(user) < 0) {
+            return Promise.reject("Unauthorized");
+        }
+
         return proj.removeDevelopers(body.subs);
     });
 }
