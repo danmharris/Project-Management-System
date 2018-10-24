@@ -2,6 +2,14 @@ import * as Cookies from 'js-cookie';
 import * as jwt from 'jsonwebtoken';
 
 class CookieService {
+    public static getTokenHeader() {
+        return {
+            headers: {
+                Authorization: Cookies.get('jwt'),
+            }
+        };
+    }
+
     public static getSub() {
         const payload: any = this.decode();
 
@@ -41,6 +49,7 @@ class CookieService {
 
         return null;
     }
+
 }
 
 export default CookieService;

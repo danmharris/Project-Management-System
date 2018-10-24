@@ -59,6 +59,9 @@ class Project {
                 if (err) {
                     reject("Unable to retrieve project");
                 } else {
+                    if (res.Item.developers) {
+                        res.Item.developers = res.Item.developers.values;
+                    }
                     resolve(new Project(res.Item, dbh));
                 }
             });

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Badge, Button, PageHeader } from 'react-bootstrap';
 
+import EditProjectDevelopersForm from './EditProjectDevelopersForm';
 import EditProjectForm from './EditProjectForm';
 
 import CookieService from './service/cookie';
@@ -56,6 +57,7 @@ class Project extends React.Component<{}, ProjectState> {
                     <Button id="edit-button" onClick={this.onEditBackClick}>Back</Button>
                     <Button id="edit-button" onClick={this.onDeleteClick}>Delete</Button>
                     <EditProjectForm onSubmit={this.onEditSubmit} name={this.state.name} description={this.state.description}/>
+                    <EditProjectDevelopersForm developerSubs={this.state.developers} managerSub={this.state.manager} uuid={this.state.uuid}/>
                 </div>
             );
         } else {
