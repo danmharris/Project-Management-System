@@ -20,6 +20,10 @@ class ProjectService {
         return axios.put(`${config.BASE_URL}/projects/${uuid}`, params, this.getTokenHeader());
     }
 
+    public static deleteProject(uuid: string) {
+        return axios.delete(`${config.BASE_URL}/projects/${uuid}`, this.getTokenHeader());
+    }
+
     private static getTokenHeader() {
         return {
             headers: {
