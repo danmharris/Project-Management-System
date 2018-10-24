@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Badge, Button, PageHeader } from 'react-bootstrap';
 
+import EditProjectForm from './EditProjectForm';
+
 import CookieService from './service/cookie';
 import ProjectService from './service/project';
 
@@ -12,6 +14,8 @@ interface ProjectState {
     developers: string[];
     manager: string;
     err: '';
+    edit: boolean;
+    uuid: string;
 }
 
 class Project extends React.Component<{}, ProjectState> {
@@ -21,15 +25,19 @@ class Project extends React.Component<{}, ProjectState> {
         this.state = {
             description: '',
             developers: [],
+            edit: false,
             err: '',
             manager: '',
             name: '',
+            uuid: props.match.params.uuid,
         };
 
         this.renderDeveloperList = this.renderDeveloperList.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
+        this.switchEdit = this.switchEdit.bind(this);
+        this.onEditSubmit = this.onEditSubmit.bind(this);
 
-        ProjectService.getByUUID(props.match.params.uuid).then((res: any) => {
+        ProjectService.getByUUID(this.state.uuid).then((res: any) => {
             this.setState({
                 description: res.data.description,
                 developers: res.data.developers,
@@ -41,22 +49,35 @@ class Project extends React.Component<{}, ProjectState> {
     }
 
     public render() {
-        return (
-            <div>
-                {this.renderEditButton()}
-                <PageHeader>{this.state.name} <Badge>{this.state.developers.length + 1}</Badge></PageHeader>
-                <h4>Manager: {this.state.manager}</h4>
-                <p>{this.state.description}</p>
-                <ul>
-                    {this.renderDeveloperList()}
-                </ul>
-            </div>
-        );
+        if (this.state.edit) {
+            return (
+                <div>
+                    <Button id="edit-button" onClick={this.switchEdit}>Back</Button>
+                    <EditProjectForm onSubmit={this.onEditSubmit} name={this.state.name} description={this.state.description}/>
+                </div>
+            );
+        } else {
+            return (
+                <div>
+                    {this.renderEditButton()}
+                    <PageHeader>{this.state.name} <Badge>{this.state.developers.length + 1}</Badge></PageHeader>
+                    <h4>Manager: {this.state.manager}</h4>
+                    <p>{this.state.description}</p>
+                    <ul>
+                        {this.renderDeveloperList()}
+                    </ul>
+                </div>
+            );
+        }
+    }
+
+    private switchEdit() {
+        this.setState({ edit: !this.state.edit });
     }
 
     private renderEditButton() {
         if (CookieService.getSub() === this.state.manager) {
-            return <Button id="edit-button">Edit</Button>
+            return <Button id="edit-button" onClick={this.switchEdit}>Edit</Button>
         } else {
             return null;
         }
@@ -66,6 +87,16 @@ class Project extends React.Component<{}, ProjectState> {
         return this.state.developers.map(dev =>
             <li key={dev}>{dev}</li>
         );
+    }
+
+    private onEditSubmit(name: string, description: string) {
+        return ProjectService.updateProject(this.state.uuid, {
+            description,
+            name,
+        }).then(() => this.setState({
+            description,
+            name,
+        }));
     }
 }
 
