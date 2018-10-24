@@ -17,6 +17,10 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:Scan
       Resource: "arn:aws:dynamodb:eu-west-2:*:*"
+    - Effect: Allow
+      Action:
+        - cognito-idp:ListUsers
+      Resource: "arn:aws:cognito-idp:eu-west-2:*:*"
   apiKeys:
     - devKey
 
@@ -30,12 +34,12 @@ functions:
           path: projects
           method: post
           authorizer:
-            arn:  arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn:  arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects
           method: get
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   project:
     handler: projectHandler.project
     name: ${self:provider.stage}-projectHandler
@@ -45,17 +49,17 @@ functions:
           path: projects/{uuid}
           method: delete
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects/{uuid}
           method: get
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects/{uuid}
           method: put
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   projectDevelopers:
     handler: projectHandler.projectDevelopers
     name: ${self:provider.stage}-projectDevelopersHandler
@@ -65,12 +69,12 @@ functions:
           path: projects/{uuid}/developers
           method: post
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: projects/{uuid}/developers
           method: delete
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   user:
     handler: userHandler.users
     name: ${self:provider.stage}-userHandler
@@ -78,24 +82,19 @@ functions:
     events:
       - http:
           path: users
+          method: get
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
+      - http:
+          path: users/{sub}
           method: post
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: users/{sub}
           method: get
           authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
-      - http:
-          path: users
-          method: get
-          authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
-      - http:
-          path: users/{sub}
-          method: put
-          authorizer:
-            arn: arn:aws:cognito-idp:eu-west-1:485681223941:userpool/eu-west-1_vd4eRyaHX
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
 
 resources:
   Resources:
@@ -125,24 +124,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-    userPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: users
-        Schema:
-          - Name: email
-            Required: true
-          - Name: name
-            Required: true
-          - Name: address
-            Required: true
-    userPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: ProjectManager
-        UserPoolId:
-          Ref: userPool
-
 
 package:
   exclude:

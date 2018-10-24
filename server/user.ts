@@ -1,60 +1,56 @@
-const TABLE_NAME = "users";
-
 interface UserParams {
     sub: string;
     name: string;
-    skills: string[];
+    email: string;
+    address: string;
 }
 
 class User {
-    public static getById(sub: string, dbh: any): Promise<User> {
+    public static getAll(cognito: any, poolId: string): Promise<User[]> {
         const params = {
-            TableName: TABLE_NAME,
-            Key: {
-                sub,
-            },
+            UserPoolId: poolId,
+            AttributesToGet: [
+                "sub",
+                "name",
+                "email",
+                "address",
+            ],
         };
 
         return new Promise((resolve, reject) => {
-            dbh.get(params, (err: any, res: any) => {
-                if (err) {
-                    reject("Unable to retrieve user");
-                } else {
-                    resolve(new User(res.Item, dbh));
-                }
-            });
-        });
-    }
-
-    public static getAll(dbh: any): Promise<User[]> {
-        const params = {
-            TableName: TABLE_NAME,
-        };
-
-        return new Promise((resolve, reject) => {
-            dbh.scan(params, (err: any, res: any) => {
+            cognito.listUsers(params, (err: any, res: any) => {
                 if (err) {
                     reject("Unable to retrieve users");
                 } else {
-                    const users: User[] = res.Items.map((item: any) => {
-                        return new User(item, dbh);
-                    });
-                    resolve(users);
+                    resolve(res.Users.map((cognitoUser: any) => {
+                        const user: User = new User();
+                        for (const attrib of cognitoUser.Attributes) {
+                            switch (attrib.Name) {
+                                case "sub":
+                                    user._sub = attrib.Value;
+                                    break;
+                                case "name":
+                                    user._name = attrib.Value;
+                                    break;
+                                case "email":
+                                    user._email = attrib.Value;
+                                    break;
+                                case "address":
+                                    user._address = attrib.Value;
+                                    break;
+                            }
+                        }
+                        return user;
+                    }));
                 }
             });
         });
     }
-    private _sub: string;
-    private _name: string;
-    private _skills: string[];
-    private dbh: any;
 
-    constructor(params: UserParams, dbh: any) {
-        this._sub = params.sub;
-        this._name = params.name;
-        this._skills = params.skills;
-        this.dbh = dbh;
-    }
+    private _sub: string = "";
+    private _name: string = "";
+    private _email: string = "";
+    private _address: string = "";
 
     get sub() {
         return this._sub;
@@ -64,79 +60,21 @@ class User {
         return this._name;
     }
 
-    set name(newName: string) {
-        this._name = newName;
+    get email() {
+        return this._email;
     }
 
-    get skills() {
-        return this._skills;
-    }
-
-    set skills(newSkills: string[]) {
-        this._skills = newSkills;
-    }
-
-    public save(): Promise<string> {
-        const params = {
-            TableName: TABLE_NAME,
-            Item: this.getParams(),
-        };
-
-        return new Promise((resolve, reject) => {
-            this.dbh.put(params, (err: any, res: any) => {
-                if (err) {
-                    reject("Error saving user");
-                } else {
-                    resolve(this.sub);
-                }
-            });
-        });
-    }
-
-    public update(): Promise<any> {
-        const params = {
-            TableName: TABLE_NAME,
-            Key: {
-                sub: this.sub,
-            },
-            UpdateExpression: "set #name=:n, skills=:s",
-            ExpressionAttributeNames: {
-                "#name": "name",
-            },
-            ExpressionAttributeValues: {
-                ":n": this.name,
-                ":s": this.skills,
-            },
-            ReturnValues: "UPDATED_NEW",
-        };
-
-        return new Promise((resolve, reject) => {
-            this.dbh.update(params, (err: any, res: any) => {
-                if (err) {
-                    reject("Unable to update user");
-                } else {
-                    resolve(res.Attributes);
-                }
-            });
-        });
+    get address() {
+        return this._address;
     }
 
     public getParams(): UserParams {
         return {
-            sub: this.sub,
+            address: this.address,
+            email: this.email,
             name: this.name,
-            skills: this.skills,
+            sub: this.sub,
         };
-    }
-
-    public setParams(params: any) {
-        if (params.name) {
-            this.name = params.name;
-        }
-
-        if (this.skills) {
-            this.skills = params.skills;
-        }
     }
 }
 
