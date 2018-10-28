@@ -15,7 +15,7 @@ class NewProject extends React.Component {
             description,
             name,
         }).then((res: any) => {
-            const uuid = res.uuid;
+            const uuid = res.data.uuid;
             window.location.replace(`/projects/${uuid}`);
         });
     }
