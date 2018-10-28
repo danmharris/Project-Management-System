@@ -1,8 +1,11 @@
 import * as React from 'react';
-import { Alert, Panel } from 'react-bootstrap';
+import { Alert, Button, Panel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+import CookieService from './service/cookie';
 import ProjectService from './service/project';
+
+import './Projects.css';
 
 interface ProjectsState {
     err: string,
@@ -19,6 +22,8 @@ class Projects extends React.Component<{}, ProjectsState> {
         };
 
         this.generateProjectList = this.generateProjectList.bind(this);
+        this.getRole = this.getRole.bind(this);
+        this.onJoinClick = this.onJoinClick.bind(this);
 
         ProjectService.getAll().then((res: any) => {
             this.setState({ projects: res.data });
@@ -41,10 +46,32 @@ class Projects extends React.Component<{}, ProjectsState> {
 
         return this.state.projects.map((project: any) =>
             <Panel key="projects-panel">
-                <Panel.Heading><Link to={`/projects/${project.uuid}`}>{project.name}</Link></Panel.Heading>
+                <Panel.Heading><Link to={`/projects/${project.uuid}`}>{project.name}</Link> <span id="project-role">{this.getRole(project)}</span></Panel.Heading>
                 <Panel.Body>{project.description}</Panel.Body>
             </Panel>
         );
+    }
+
+    private getRole(project: any) {
+        const sub = CookieService.getSub();
+
+        if (project.manager === sub) {
+            return "Manager";
+        }
+
+        console.log(project);
+
+        if (project.developers.indexOf(sub) > -1) {
+            return "Developer";
+        }
+
+        return <Button id="join-button" value={project.uuid} onClick={this.onJoinClick}>Join</Button>;
+    }
+
+    private onJoinClick(e: any) {
+        ProjectService.addDevelopers(e.target.value, [CookieService.getSub()]).then(() => {
+            window.location.replace(`/projects/${e.target.value}`);
+        });
     }
 }
 

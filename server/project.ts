@@ -81,6 +81,9 @@ class Project {
                 } else {
                     const projects: Project[] = [];
                     for (const item of res.Items) {
+                        if (item.developers) {
+                            item.developers = item.developers.values;
+                        }
                         projects.push(new Project(item, dbh));
                     }
                     resolve(projects);

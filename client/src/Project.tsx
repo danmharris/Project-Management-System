@@ -45,6 +45,8 @@ class Project extends React.Component<{}, ProjectState> {
         this.getManager = this.getManager.bind(this);
         this.getDevelopers = this.getDevelopers.bind(this);
         this.getStatusString = this.getStatusString.bind(this);
+        this.onJoinClick = this.onJoinClick.bind(this);
+        this.onLeaveClick = this.onLeaveClick.bind(this);
 
         UserService.getAll().then((res: any) => {
             this.setState({
@@ -68,8 +70,8 @@ class Project extends React.Component<{}, ProjectState> {
         if (this.state.edit) {
             return (
                 <div>
-                    <Button id="edit-button" onClick={this.onEditBackClick}>Back</Button>
-                    <Button id="edit-button" onClick={this.onDeleteClick}>Delete</Button>
+                    <Button bsClass="right-button" onClick={this.onEditBackClick}>Back</Button>
+                    <Button bsClass="right-button" onClick={this.onDeleteClick}>Delete</Button>
                     <EditProjectForm onSubmit={this.onEditSubmit} name={this.state.name} description={this.state.description} status={this.state.status}/>
                     <EditProjectDevelopersForm users={this.state.users} developerSubs={this.state.developers} managerSub={this.state.manager} uuid={this.state.uuid}/>
                 </div>
@@ -95,10 +97,13 @@ class Project extends React.Component<{}, ProjectState> {
     }
 
     private renderEditButton() {
-        if (CookieService.getSub() === this.state.manager) {
-            return <Button id="edit-button" onClick={this.onEditBackClick}>Edit</Button>
+        const sub = CookieService.getSub();
+        if (sub === this.state.manager) {
+            return <Button bsClass="right-button" onClick={this.onEditBackClick}>Edit</Button>
+        } else if (this.state.developers.indexOf(sub) > -1) {
+            return <Button bsClass="right-button" onClick={this.onLeaveClick}>Leave</Button>;
         } else {
-            return null;
+            return <Button bsClass="right-button" onClick={this.onJoinClick}>Join</Button>
         }
     }
 
@@ -144,6 +149,14 @@ class Project extends React.Component<{}, ProjectState> {
             default:
                 return "Unknown";
         }
+    }
+
+    private onJoinClick() {
+        ProjectService.addDevelopers(this.state.uuid, [CookieService.getSub()]);
+    }
+
+    private onLeaveClick() {
+        ProjectService.removeDevelopers(this.state.uuid, [CookieService.getSub()]);
     }
 }
 
