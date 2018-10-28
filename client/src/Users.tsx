@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ListGroup, ListGroupItem, Modal, PageHeader} from 'react-bootstrap';
+import { Alert, ListGroup, ListGroupItem, Modal, PageHeader} from 'react-bootstrap';
 
 import UserService from './service/user';
 
@@ -102,6 +102,10 @@ class Users extends React.Component<{}, UsersState> {
     }
 
     private renderSkillsList() {
+        if (this.state.selectedUserSkills.length === 0) {
+            return <Alert bsStyle="info">This user has no skills listed</Alert>
+        }
+
         return this.state.selectedUserSkills.map((skill: string) =>
             <li key={skill}>
                 {skill}

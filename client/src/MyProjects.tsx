@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { PageHeader, Panel } from 'react-bootstrap';
+import { Alert, PageHeader, Panel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import CookieService from './service/cookie';
@@ -47,8 +47,12 @@ class MyProjects extends React.Component<{}, MyProjectsState> {
     }
 
     private renderProjects(projects: any[]) {
+        if(projects.length === 0) {
+            return <Alert bsStyle="info">There aren't any projects in this category</Alert>
+        }
+
         return projects.map((project: any) =>
-            <Panel key="projects-panel">
+            <Panel key={`projects-panel-${project.uuid}`}>
                 <Panel.Heading><Link to={`/projects/${project.uuid}`}>{project.name}</Link></Panel.Heading>
                 <Panel.Body>{project.description}</Panel.Body>
             </Panel>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, PageHeader, Panel } from 'react-bootstrap';
+import { Alert, Button, PageHeader, Panel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import CookieService from './service/cookie';
@@ -34,6 +34,7 @@ class Projects extends React.Component<{}, ProjectsState> {
     public render() {
         return (
             <div>
+                <Link to="/new_project"><Button bsClass="float-right">Create</Button></Link>
                 <PageHeader>
                     Projects
                 </PageHeader>
@@ -44,11 +45,11 @@ class Projects extends React.Component<{}, ProjectsState> {
 
     private generateProjectList() {
         if (this.state.projects.length === 0) {
-            return <Alert bsStyle="info">There are no projects currently. Create one?</Alert>
+            return <Alert bsStyle="info">There are no projects currently. <Link to ="/new_project">Create one?</Link></Alert>
         }
 
         return this.state.projects.map((project: any) =>
-            <Panel key="projects-panel">
+            <Panel key={`projects-panel-${project.uuid}`}>
                 <Panel.Heading><Link to={`/projects/${project.uuid}`}>{project.name}</Link> <span id="project-role">{this.getRole(project)}</span></Panel.Heading>
                 <Panel.Body>{project.description}</Panel.Body>
             </Panel>

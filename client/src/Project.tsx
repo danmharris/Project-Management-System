@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Badge, Button, PageHeader, Panel } from 'react-bootstrap';
+import { Alert, Badge, Button, PageHeader, Panel } from 'react-bootstrap';
 
 import EditProjectDevelopersForm from './EditProjectDevelopersForm';
 import EditProjectForm from './EditProjectForm';
@@ -132,6 +132,10 @@ class Project extends React.Component<{}, ProjectState> {
     }
 
     private getDevelopers() {
+        if (this.state.developers.length === 0) {
+            return <Alert bsStyle="info">There aren't any developers on this project</Alert>
+        }
+
         return this.state.users.filter((user: any) => this.state.developers.indexOf(user.sub) > -1)
             .map((dev: any) =>
                 <li key={dev.sub}>{dev.name}</li>
