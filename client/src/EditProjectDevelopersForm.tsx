@@ -3,9 +3,9 @@ import * as React from 'react';
 import { Button, ControlLabel, FormControl, FormGroup, InputGroup } from 'react-bootstrap';
 
 import ProjectService from './service/project';
-import UserService from './service/user';
 
 interface EditProjectDevelopersFormProps {
+    users: any[];
     developerSubs: string[];
     managerSub: string;
     uuid: string;
@@ -14,7 +14,6 @@ interface EditProjectDevelopersFormProps {
 interface EditProjectDevelopersFormState {
     managerSub: string;
     developerSubs: string[];
-    users: any[];
 }
 
 class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFormProps, EditProjectDevelopersFormState> {
@@ -32,16 +31,10 @@ class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFor
         this.state = {
             developerSubs: this.props.developerSubs,
             managerSub: this.props.managerSub,
-            users: [],
         }
 
         console.log(this.props.managerSub);
 
-        UserService.getAll().then((res: any) => {
-            this.setState({
-                users: res.data,
-            });
-        })
     }
 
     public render() {
@@ -77,12 +70,12 @@ class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFor
     }
 
     private renderSelect() {
-        return this.state.users
+        return this.props.users
             .map(dev => <option key={dev.sub} value={dev.sub}>{dev.name}</option>);
     }
 
     private renderDevelopers() {
-        const developers = this.state.users.filter((user: any) => this.state.developerSubs.indexOf(user.sub) > -1);
+        const developers = this.props.users.filter((user: any) => this.state.developerSubs.indexOf(user.sub) > -1);
 
         return developers.map(dev =>
             <InputGroup key={dev.sub}>
@@ -93,7 +86,7 @@ class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFor
     }
 
     private renderOtherUsers() {
-        const otherUsers = this.state.users.filter((user: any) => this.state.developerSubs.indexOf(user.sub) <= -1);
+        const otherUsers = this.props.users.filter((user: any) => this.state.developerSubs.indexOf(user.sub) <= -1);
 
         return otherUsers.map(user =>
             <InputGroup key={user.sub}>

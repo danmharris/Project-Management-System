@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Badge, Button, PageHeader } from 'react-bootstrap';
+import { Badge, Button, PageHeader, Panel } from 'react-bootstrap';
 
 import EditProjectDevelopersForm from './EditProjectDevelopersForm';
 import EditProjectForm from './EditProjectForm';
@@ -8,6 +8,7 @@ import CookieService from './service/cookie';
 import ProjectService from './service/project';
 
 import './Project.css';
+import UserService from './service/user';
 
 interface ProjectState {
     name: string;
@@ -17,6 +18,7 @@ interface ProjectState {
     err: '';
     edit: boolean;
     uuid: string;
+    users: any[];
 }
 
 class Project extends React.Component<{}, ProjectState> {
@@ -30,14 +32,22 @@ class Project extends React.Component<{}, ProjectState> {
             err: '',
             manager: '',
             name: '',
+            users: [],
             uuid: props.match.params.uuid,
         };
 
-        this.renderDeveloperList = this.renderDeveloperList.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
         this.onEditBackClick = this.onEditBackClick.bind(this);
         this.onEditSubmit = this.onEditSubmit.bind(this);
         this.onDeleteClick = this.onDeleteClick.bind(this);
+        this.getManager = this.getManager.bind(this);
+        this.getDevelopers = this.getDevelopers.bind(this);
+
+        UserService.getAll().then((res: any) => {
+            this.setState({
+                users: res.data,
+            });
+        });
 
         ProjectService.getByUUID(this.state.uuid).then((res: any) => {
             this.setState({
@@ -57,7 +67,7 @@ class Project extends React.Component<{}, ProjectState> {
                     <Button id="edit-button" onClick={this.onEditBackClick}>Back</Button>
                     <Button id="edit-button" onClick={this.onDeleteClick}>Delete</Button>
                     <EditProjectForm onSubmit={this.onEditSubmit} name={this.state.name} description={this.state.description}/>
-                    <EditProjectDevelopersForm developerSubs={this.state.developers} managerSub={this.state.manager} uuid={this.state.uuid}/>
+                    <EditProjectDevelopersForm users={this.state.users} developerSubs={this.state.developers} managerSub={this.state.manager} uuid={this.state.uuid}/>
                 </div>
             );
         } else {
@@ -65,10 +75,11 @@ class Project extends React.Component<{}, ProjectState> {
                 <div>
                     {this.renderEditButton()}
                     <PageHeader>{this.state.name} <Badge>{this.state.developers.length + 1}</Badge></PageHeader>
-                    <h4>Manager: {this.state.manager}</h4>
-                    <p>{this.state.description}</p>
+                    <Panel><Panel.Body>{this.state.description}</Panel.Body></Panel>
+                    <h4>Manager: {this.getManager()}</h4>
+                    <h4>Developers:</h4>
                     <ul>
-                        {this.renderDeveloperList()}
+                        {this.getDevelopers()}
                     </ul>
                 </div>
             );
@@ -87,12 +98,6 @@ class Project extends React.Component<{}, ProjectState> {
         }
     }
 
-    private renderDeveloperList() {
-        return this.state.developers.map(dev =>
-            <li key={dev}>{dev}</li>
-        );
-    }
-
     private onEditSubmit(name: string, description: string) {
         return ProjectService.updateProject(this.state.uuid, {
             description,
@@ -105,6 +110,21 @@ class Project extends React.Component<{}, ProjectState> {
 
     private onDeleteClick() {
         ProjectService.deleteProject(this.state.uuid).then(() => window.location.replace('/projects'));
+    }
+
+    private getManager() {
+        if (this.state.manager && this.state.users.length > 0) {
+            return this.state.users.find((user: any) => user.sub === this.state.manager).name;
+        } else {
+            return "No Manager";
+        }
+    }
+
+    private getDevelopers() {
+        return this.state.users.filter((user: any) => this.state.developers.indexOf(user.sub) > -1)
+            .map((dev: any) =>
+                <li key={dev.sub}>{dev.name}</li>
+            );
     }
 }
 
