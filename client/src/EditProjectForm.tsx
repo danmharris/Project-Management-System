@@ -4,6 +4,7 @@ import { Alert, Button, ControlLabel, FormControl, FormGroup } from 'react-boots
 interface EditProjectState {
     name: string;
     description: string;
+    status: number;
     err: string;
     success: string;
 }
@@ -11,7 +12,8 @@ interface EditProjectState {
 interface EditProjectProps {
     name?: string;
     description?: string;
-    onSubmit: (name: string, description: string) => Promise<any>;
+    onSubmit: (name: string, description: string, status: number) => Promise<any>;
+    status?: number;
 }
 
 class EditProject extends React.Component<EditProjectProps, EditProjectState> {
@@ -22,11 +24,13 @@ class EditProject extends React.Component<EditProjectProps, EditProjectState> {
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.onStatusChange = this.onStatusChange.bind(this);
 
         this.state = {
             description: props.description ? props.description : '',
             err: '',
             name: props.name ? props.name: '',
+            status: props.status ? props.status: 0,
             success: '',
         };
     }
@@ -69,6 +73,17 @@ class EditProject extends React.Component<EditProjectProps, EditProjectState> {
                     />
                 </FormGroup>
 
+                <FormGroup
+                    controlId="form-status"
+                >
+                    <ControlLabel>Status</ControlLabel>
+                    <FormControl componentClass="select" placeholder="0" value={this.state.status} onChange={this.onStatusChange}>
+                        <option value="0">Pending</option>
+                        <option value="1">Active</option>
+                        <option value="2">Complete</option>
+                    </FormControl>
+                </FormGroup>
+
                 <Button
                     disabled={!this.isFormValid()}
                     onClick={this.handleSubmit}
@@ -109,11 +124,14 @@ class EditProject extends React.Component<EditProjectProps, EditProjectState> {
     }
 
     private handleSubmit(e: any): void {
-       this.props.onSubmit(this.state.name, this.state.description)
+       this.props.onSubmit(this.state.name, this.state.description, this.state.status)
             .then(() => this.setState({ success: "Successfully saved" }))
             .catch(() => this.setState({ err: "Unable to save project. Please try again later"}));
     }
 
+    private onStatusChange(e: any): void {
+        this.setState({ status: e.target.value });
+    }
 }
 
 export default EditProject;

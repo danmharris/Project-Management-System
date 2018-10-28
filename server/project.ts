@@ -33,9 +33,9 @@ const isProjectParams: (obj: any) => boolean = (obj: any) => {
     }
 
     if (obj.status) {
-        if (typeof obj.status !== "number") {
-            return false;
-        }
+        // if (typeof obj.status !== "number") {
+        //     return false;
+        // }
 
         if (obj.status < 0 || obj.status > 2) {
             return false;

@@ -10,10 +10,11 @@ class NewProject extends React.Component {
         );
     }
 
-    private createProject(name: string, description: string) {
+    private createProject(name: string, description: string, status: number) {
         return ProjectService.newProject({
             description,
             name,
+            status,
         }).then((res: any) => {
             const uuid = res.data.uuid;
             window.location.replace(`/projects/${uuid}`);
