@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Alert, Button, PageHeader, Panel } from 'react-bootstrap';
+import { Button, PageHeader } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-import CookieService from './service/cookie';
 import ProjectService from './service/project';
 
-import './Projects.css';
+import ProjectList from './ProjectList';
 
 interface ProjectsState {
     err: string,
@@ -21,10 +20,6 @@ class Projects extends React.Component<{}, ProjectsState> {
             projects: [],
         };
 
-        this.generateProjectList = this.generateProjectList.bind(this);
-        this.getRole = this.getRole.bind(this);
-        this.onJoinClick = this.onJoinClick.bind(this);
-
         ProjectService.getAll().then((res: any) => {
             this.setState({ projects: res.data });
         });
@@ -38,42 +33,9 @@ class Projects extends React.Component<{}, ProjectsState> {
                 <PageHeader>
                     Projects
                 </PageHeader>
-                {this.generateProjectList()}
+                <ProjectList projects={this.state.projects} showRole={true} />
             </div>
         );
-    }
-
-    private generateProjectList() {
-        if (this.state.projects.length === 0) {
-            return <Alert bsStyle="info">There are no projects currently. <Link to ="/new_project">Create one?</Link></Alert>
-        }
-
-        return this.state.projects.map((project: any) =>
-            <Panel key={`projects-panel-${project.uuid}`}>
-                <Panel.Heading><Link to={`/projects/${project.uuid}`}>{project.name}</Link> <span id="project-role">{this.getRole(project)}</span></Panel.Heading>
-                <Panel.Body>{project.description}</Panel.Body>
-            </Panel>
-        );
-    }
-
-    private getRole(project: any): string {
-        const sub = CookieService.getSub();
-
-        if (project.manager === sub) {
-            return "Manager";
-        }
-
-        if (project.developers.indexOf(sub) > -1) {
-            return "Developer";
-        }
-
-        return '';
-    }
-
-    private onJoinClick(e: any) {
-        ProjectService.addDevelopers(e.target.value, [CookieService.getSub()]).then(() => {
-            window.location.replace(`/projects/${e.target.value}`);
-        });
     }
 }
 

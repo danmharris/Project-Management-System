@@ -1,10 +1,11 @@
 import * as React from 'react';
 
-import { Alert, PageHeader, Panel } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { PageHeader } from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import ProjectService from './service/project';
+
+import ProjectList from './ProjectList';
 
 interface MyProjectsState {
     manage: any[];
@@ -38,24 +39,9 @@ class MyProjects extends React.Component<{}, MyProjectsState> {
                 <PageHeader>
                     My Projects
                 </PageHeader>
-                <h4>Projects I manage</h4>
-                {this.renderProjects(this.state.manage)}
-                <h4>Projects I develop</h4>
-                {this.renderProjects(this.state.develop)}
+                <ProjectList projects={this.state.manage} header="Projects I manage" />
+                <ProjectList projects={this.state.develop} header="Projects I develop" />
             </div>
-        );
-    }
-
-    private renderProjects(projects: any[]) {
-        if(projects.length === 0) {
-            return <Alert bsStyle="info">There aren't any projects in this category</Alert>
-        }
-
-        return projects.map((project: any) =>
-            <Panel key={`projects-panel-${project.uuid}`}>
-                <Panel.Heading><Link to={`/projects/${project.uuid}`}>{project.name}</Link></Panel.Heading>
-                <Panel.Body>{project.description}</Panel.Body>
-            </Panel>
         );
     }
 }

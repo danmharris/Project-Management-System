@@ -7,7 +7,7 @@ import EditProjectForm from './EditProjectForm';
 import CookieService from './service/cookie';
 import ProjectService from './service/project';
 
-import './Project.css';
+import './Buttons.css';
 import UserService from './service/user';
 
 interface ProjectState {
@@ -70,8 +70,8 @@ class Project extends React.Component<{}, ProjectState> {
         if (this.state.edit) {
             return (
                 <div>
-                    <Button bsClass="right-button" onClick={this.onEditBackClick}>Back</Button>
-                    <Button bsClass="right-button" onClick={this.onDeleteClick}>Delete</Button>
+                    <Button bsClass="float-right" onClick={this.onEditBackClick}>Back</Button>
+                    <Button bsClass="float-right" onClick={this.onDeleteClick}>Delete</Button>
                     <EditProjectForm onSubmit={this.onEditSubmit} name={this.state.name} description={this.state.description} status={this.state.status}/>
                     <EditProjectDevelopersForm users={this.state.users} developerSubs={this.state.developers} managerSub={this.state.manager} uuid={this.state.uuid}/>
                 </div>
@@ -99,11 +99,11 @@ class Project extends React.Component<{}, ProjectState> {
     private renderEditButton() {
         const sub = CookieService.getSub();
         if (sub === this.state.manager) {
-            return <Button bsClass="right-button" onClick={this.onEditBackClick}>Edit</Button>
+            return <Button bsClass="float-right" onClick={this.onEditBackClick}>Edit</Button>
         } else if (this.state.developers.indexOf(sub) > -1) {
-            return <Button bsClass="right-button" onClick={this.onLeaveClick}>Leave</Button>;
+            return <Button bsClass="float-right" onClick={this.onLeaveClick}>Leave</Button>;
         } else {
-            return <Button bsClass="right-button" onClick={this.onJoinClick}>Join</Button>
+            return <Button bsClass="float-right" onClick={this.onJoinClick}>Join</Button>
         }
     }
 
