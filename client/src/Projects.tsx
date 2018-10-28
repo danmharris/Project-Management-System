@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Button, Panel } from 'react-bootstrap';
+import { Alert, PageHeader, Panel } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import CookieService from './service/cookie';
@@ -34,6 +34,9 @@ class Projects extends React.Component<{}, ProjectsState> {
     public render() {
         return (
             <div>
+                <PageHeader>
+                    Projects
+                </PageHeader>
                 {this.generateProjectList()}
             </div>
         );
@@ -52,20 +55,18 @@ class Projects extends React.Component<{}, ProjectsState> {
         );
     }
 
-    private getRole(project: any) {
+    private getRole(project: any): string {
         const sub = CookieService.getSub();
 
         if (project.manager === sub) {
             return "Manager";
         }
 
-        console.log(project);
-
         if (project.developers.indexOf(sub) > -1) {
             return "Developer";
         }
 
-        return <Button id="join-button" value={project.uuid} onClick={this.onJoinClick}>Join</Button>;
+        return '';
     }
 
     private onJoinClick(e: any) {

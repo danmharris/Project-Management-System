@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, ControlLabel, FormControl, FormGroup, InputGroup } from 'react-bootstrap';
+import { Button, ControlLabel, FormControl, FormGroup, InputGroup, PageHeader } from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import UserService from './service/user';
@@ -37,6 +37,9 @@ class Profile extends React.Component<{}, ProfileState> {
     public render() {
         return (
             <div>
+                <PageHeader>
+                    My Profile
+                </PageHeader>
                 <form>
                     <FormGroup controlId="form-skills">
                         <ControlLabel>Skills</ControlLabel>

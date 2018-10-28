@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ListGroup, ListGroupItem, Modal} from 'react-bootstrap';
+import { ListGroup, ListGroupItem, Modal, PageHeader} from 'react-bootstrap';
 
 import UserService from './service/user';
 
@@ -38,6 +38,9 @@ class Users extends React.Component<{}, UsersState> {
     public render() {
         return (
             <div>
+                <PageHeader>
+                    Users
+                </PageHeader>
                 <ListGroup>
                     {this.renderUserList()}
                 </ListGroup>
