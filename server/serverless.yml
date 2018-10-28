@@ -96,11 +96,13 @@ functions:
       - http:
           path: users/{sub}
           method: post
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: users/{sub}
           method: get
+          cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
 

@@ -24,10 +24,13 @@ class Navigation extends React.Component {
                   <NavItem href="/projects">
                     Projects
                   </NavItem>
+                  <NavItem href="/users">
+                    Users
+                  </NavItem>
                 </Nav>
                 <Nav pullRight={true}>
                   <NavDropdown title={name} id="user-dropdown">
-                    <NavItem href="#">
+                    <NavItem href="/profile">
                       My Profile
                     </NavItem>
                     <NavItem href="#">

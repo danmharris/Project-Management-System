@@ -43,10 +43,6 @@ function post(sub: string, body: any) {
 }
 
 function get(sub: string) {
-    if (sub !== user) {
-        return Promise.reject("Unauthorized");
-    }
-
     return UserSkills.getBySub(sub, dynamo).then((dbUser: UserSkills) => {
         return dbUser.getParams();
     });

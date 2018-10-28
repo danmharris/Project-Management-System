@@ -8,9 +8,10 @@ import CookieService from './service/cookie';
 import config from './config/config';
 import Navigation from './Navigation';
 import NewProject from './NewProject';
+import Profile from './Profile';
 import Project from './Project';
 import Projects from './Projects';
-
+import Users from './Users';
 
 import './App.css';
 
@@ -34,6 +35,8 @@ class App extends React.Component {
               <Route path="/projects/:uuid" component={Project} />
               <Route path="/projects" component={Projects} />
               <Route path="/new_project" component={NewProject} />
+              <Route path="/users" component={Users} />
+              <Route path="/profile" component={Profile} />
             </Switch>
           </Router>
         </div>
