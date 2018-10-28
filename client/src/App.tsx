@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import CookieService from './service/cookie';
 
 import config from './config/config';
+import MyProjects from './MyProjects';
 import Navigation from './Navigation';
 import NewProject from './NewProject';
 import Profile from './Profile';
@@ -37,6 +38,7 @@ class App extends React.Component {
               <Route path="/new_project" component={NewProject} />
               <Route path="/users" component={Users} />
               <Route path="/profile" component={Profile} />
+              <Route path="/my_projects" component={MyProjects} />
             </Switch>
           </Router>
         </div>

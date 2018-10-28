@@ -18,7 +18,7 @@ class Navigation extends React.Component {
               </Navbar.Header>
               <Navbar.Collapse>
                 <Nav>
-                  <NavItem href="#">
+                  <NavItem href="/my_projects">
                     My Projects
                   </NavItem>
                   <NavItem href="/projects">
