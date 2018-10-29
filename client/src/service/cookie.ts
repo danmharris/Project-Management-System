@@ -48,6 +48,10 @@ class CookieService {
         return true;
     }
 
+    public static clear() {
+        Cookies.remove('jwt');
+    }
+
     private static decode() {
         const token = Cookies.get('jwt');
 
