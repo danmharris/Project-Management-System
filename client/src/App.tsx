@@ -1,19 +1,49 @@
+import * as Cookies from 'js-cookie';
+import * as queryString from 'query-string';
 import * as React from 'react';
-import './App.css';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-import logo from './logo.svg';
+import CookieService from './service/cookie';
+
+import config from './config/config';
+import Dashboard from './Dashboard';
+import MyProjects from './MyProjects';
+import Navigation from './Navigation';
+import NewProject from './NewProject';
+import Profile from './Profile';
+import Project from './Project';
+import Projects from './Projects';
+import Users from './Users';
+
+import './App.css';
 
 class App extends React.Component {
   public render() {
+    const parsedHash = queryString.parse(location.hash);
+    if (parsedHash.id_token) {
+      Cookies.set('jwt', parsedHash.id_token);
+      location.hash = '';
+    } else if (CookieService.isExpired()) {
+      window.location.replace(`${config.LOGIN_URL}&redirect_uri=${window.location}`);
+    }
+
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <Navigation />
+        <div className="Container">
+          <Router>
+            <Switch>
+              <Route path="/projects/:uuid" component={Project} />
+              <Route path="/projects" component={Projects} />
+              <Route path="/new_project" component={NewProject} />
+              <Route path="/users" component={Users} />
+              <Route path="/profile" component={Profile} />
+              <Route path="/my_projects" component={MyProjects} />
+              <Route path="/" component={Dashboard} />
+            </Switch>
+          </Router>
+        </div>
       </div>
     );
   }

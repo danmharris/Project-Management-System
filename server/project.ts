@@ -33,9 +33,9 @@ const isProjectParams: (obj: any) => boolean = (obj: any) => {
     }
 
     if (obj.status) {
-        if (typeof obj.status !== "number") {
-            return false;
-        }
+        // if (typeof obj.status !== "number") {
+        //     return false;
+        // }
 
         if (obj.status < 0 || obj.status > 2) {
             return false;
@@ -59,6 +59,9 @@ class Project {
                 if (err) {
                     reject("Unable to retrieve project");
                 } else {
+                    if (res.Item.developers) {
+                        res.Item.developers = res.Item.developers.values;
+                    }
                     resolve(new Project(res.Item, dbh));
                 }
             });
@@ -78,6 +81,9 @@ class Project {
                 } else {
                     const projects: Project[] = [];
                     for (const item of res.Items) {
+                        if (item.developers) {
+                            item.developers = item.developers.values;
+                        }
                         projects.push(new Project(item, dbh));
                     }
                     resolve(projects);
