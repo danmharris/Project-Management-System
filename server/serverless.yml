@@ -20,6 +20,7 @@ provider:
     - Effect: Allow
       Action:
         - cognito-idp:ListUsers
+        - cognito-idp:AdminListGroupsForUser
       Resource: "arn:aws:cognito-idp:eu-west-2:*:*"
   apiKeys:
     - devKey
@@ -101,6 +102,17 @@ functions:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
       - http:
           path: users/{sub}
+          method: get
+          cors: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
+  userGroups:
+    handler: userHandler.userGroups
+    name: ${self:provider.stage}-userGroupsHandler
+    description: Handles API calls related to user groups
+    events:
+      - http:
+          path: user_groups/{username}
           method: get
           cors: true
           authorizer:

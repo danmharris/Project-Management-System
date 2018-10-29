@@ -3,6 +3,7 @@ interface UserParams {
     name: string;
     email: string;
     address: string;
+    username: string;
 }
 
 class User {
@@ -24,6 +25,7 @@ class User {
                 } else {
                     resolve(res.Users.map((cognitoUser: any) => {
                         const user: User = new User();
+                        user._username = cognitoUser.Username;
                         for (const attrib of cognitoUser.Attributes) {
                             switch (attrib.Name) {
                                 case "sub":
@@ -47,10 +49,32 @@ class User {
         });
     }
 
+    public static getGroup(username: string, cognito: any, poolId: string): Promise<string> {
+        const params = {
+            UserPoolId: poolId,
+            Username: username,
+        };
+
+        return new Promise((resolve, reject) => {
+            cognito.adminListGroupsForUser(params, (err: any, res: any) => {
+                if (err) {
+                    reject("Unable to get groups");
+                } else {
+                    if (res.Groups.length > 0) {
+                        resolve(res.Groups[0].GroupName);
+                    }
+
+                    resolve("Developers");
+                }
+            });
+        });
+    }
+
     private _sub: string = "";
     private _name: string = "";
     private _email: string = "";
     private _address: string = "";
+    private _username: string = "";
 
     get sub() {
         return this._sub;
@@ -68,12 +92,17 @@ class User {
         return this._address;
     }
 
+    get username() {
+        return this._username;
+    }
+
     public getParams(): UserParams {
         return {
             address: this.address,
             email: this.email,
             name: this.name,
             sub: this.sub,
+            username: this.username,
         };
     }
 }
