@@ -21,6 +21,8 @@ provider:
       Action:
         - cognito-idp:ListUsers
         - cognito-idp:AdminListGroupsForUser
+        - cognito-idp:AdminRemoveUserFromGroup
+        - cognito-idp:AdminAddUserToGroup
       Resource: "arn:aws:cognito-idp:eu-west-2:*:*"
   apiKeys:
     - devKey
@@ -114,6 +116,12 @@ functions:
       - http:
           path: user_groups/{username}
           method: get
+          cors: true
+          authorizer:
+            arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
+      - http:
+          path: user_groups/{username}
+          method: post
           cors: true
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj

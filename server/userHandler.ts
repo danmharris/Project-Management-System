@@ -33,7 +33,7 @@ const users: Handler = (event: any, context: Context, callback: Callback) => {
 };
 
 const userGroups: Handler = (event: any, context: Context, callback: Callback) => {
-    // const body = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
     groups = event.requestContext.authorizer.claims["cognito:groups"];
     const username = event.pathParameters.username;
 
@@ -48,6 +48,9 @@ const userGroups: Handler = (event: any, context: Context, callback: Callback) =
     switch (event.httpMethod) {
         case "GET":
             handle(getGroups(username), callback);
+            break;
+        case "POST":
+            handle(setGroup(username, body.group), callback);
             break;
         default:
             handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
@@ -76,6 +79,10 @@ function getGroups(username: string) {
     return User.getGroup(username, cognito, COGNITO_POOL).then((group: string) => {
         return { group };
     });
+}
+
+function setGroup(username: string, group: string) {
+    return User.setGroup(username, cognito, COGNITO_POOL, group);
 }
 
 function getAll() {

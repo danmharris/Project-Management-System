@@ -70,6 +70,46 @@ class User {
         });
     }
 
+    public static setGroup(username: string, cognito: any, poolId: string, group: string): Promise<any> {
+        return this.getGroup(username, cognito, poolId).then((oldGroup: string) => {
+            if (oldGroup === "Developers") {
+                return Promise.resolve(null);
+            }
+
+            const removeParams = {
+                GroupName: oldGroup,
+                UserPoolId: poolId,
+                Username: username,
+            };
+
+            return new Promise((resolve, reject) => {
+                cognito.adminRemoveUserFromGroup(removeParams, (err: any, res: any) => {
+                    if (err) {
+                        reject("Unable to remove old group");
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        }).then(() => {
+            const addParams = {
+                GroupName: group,
+                UserPoolId: poolId,
+                Username: username,
+            };
+
+            return new Promise((resolve, reject) => {
+                cognito.adminAddUserToGroup(addParams, (err: any, res: any) => {
+                    if (err) {
+                        reject("Unable to add new group");
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        });
+    }
+
     private _sub: string = "";
     private _name: string = "";
     private _email: string = "";
