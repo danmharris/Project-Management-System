@@ -98,7 +98,9 @@ class Project extends React.Component<{}, ProjectState> {
 
     private renderEditButton() {
         const sub = CookieService.getSub();
-        if (sub === this.state.manager) {
+        const groups = CookieService.getGroups();
+
+        if (sub === this.state.manager || groups.indexOf("ProjectManagers") > -1 || groups.indexOf("Admins") > -1) {
             return <Button bsClass="float-right" onClick={this.onEditBackClick}>Edit</Button>
         } else if (this.state.developers.indexOf(sub) > -1) {
             return <Button bsClass="float-right" onClick={this.onLeaveClick}>Leave</Button>;
