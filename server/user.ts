@@ -92,6 +92,10 @@ class User {
                 });
             });
         }).then(() => {
+            if(group === "Developers") {
+                return Promise.resolve({});
+            }
+
             const addParams = {
                 GroupName: group,
                 UserPoolId: poolId,
