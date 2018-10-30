@@ -1,13 +1,15 @@
 import * as React from 'react';
 
-import { Alert, ListGroup, ListGroupItem, Modal, PageHeader} from 'react-bootstrap';
+import { Alert, Button, ControlLabel, FormControl, FormGroup, ListGroup, ListGroupItem, Modal, PageHeader} from 'react-bootstrap';
 
+import CookieService from './service/cookie';
 import UserService from './service/user';
 
 interface UsersState {
     users: any[];
     selectedUser: any;
     selectedUserSkills: string[];
+    selectedUserGroup: string;
     showModal: boolean;
 }
 
@@ -17,6 +19,7 @@ class Users extends React.Component<{}, UsersState> {
 
         this.state = {
             selectedUser: null,
+            selectedUserGroup: '',
             selectedUserSkills: [],
             showModal: false,
             users: [],
@@ -27,6 +30,9 @@ class Users extends React.Component<{}, UsersState> {
         this.onModalHide = this.onModalHide.bind(this);
         this.onUserClick = this.onUserClick.bind(this);
         this.renderSkillsList = this.renderSkillsList.bind(this);
+        this.renderGroupList = this.renderGroupList.bind(this);
+        this.onGroupChange = this.onGroupChange.bind(this);
+        this.onGroupSubmit = this.onGroupSubmit.bind(this);
 
         UserService.getAll().then((res: any) => {
             this.setState({
@@ -66,6 +72,7 @@ class Users extends React.Component<{}, UsersState> {
                         <ul>
                             {this.renderSkillsList()}
                         </ul>
+                        {this.renderGroupList()}
                     </Modal.Body>
                 </Modal>
             )
@@ -76,18 +83,30 @@ class Users extends React.Component<{}, UsersState> {
 
     private onUserClick(e: any) {
         const sub = e.target.value;
+        const selectedUser = this.state.users.find((user: any) => user.sub === sub);
+        const isAdmin = CookieService.getGroups().indexOf("Admins") > -1;
+
         UserService.getSkills(sub).then((res: any) => {
             this.setState({
-                selectedUser: this.state.users.find((user: any) => user.sub === sub),
+                selectedUser,
                 selectedUserSkills: res.data.skills,
                 showModal: true,
             });
         });
+
+        if (isAdmin) {
+            UserService.getGroup(selectedUser.username).then((res: any) => {
+                this.setState({
+                    selectedUserGroup: res.data.group,
+                });
+            });
+        }
     }
 
     private onModalHide() {
         this.setState({
             selectedUser: null,
+            selectedUserGroup: '',
             selectedUserSkills: [],
             showModal: false,
         });
@@ -111,6 +130,36 @@ class Users extends React.Component<{}, UsersState> {
                 {skill}
             </li>
         );
+    }
+
+    private renderGroupList() {
+        if (this.state.selectedUserGroup === '') {
+            return null;
+        }
+
+        return (
+            <form>
+                <FormGroup controlId="user-group">
+                    <ControlLabel>Group:</ControlLabel>
+                    <FormControl componentClass="select" value={this.state.selectedUserGroup} onChange={this.onGroupChange}>
+                        <option value="Developers">Developers</option>
+                        <option value="ProjectManagers">Project Managers</option>
+                        <option value="Admins">Admins</option>
+                    </FormControl>
+                    <Button onClick={this.onGroupSubmit}>Update</Button>
+                </FormGroup>
+            </form>
+        );
+    }
+
+    private onGroupChange(e: any) {
+        this.setState({
+            selectedUserGroup: e.target.value,
+        });
+    }
+
+    private onGroupSubmit() {
+        UserService.setGroup(this.state.selectedUser.username, this.state.selectedUserGroup);
     }
 }
 
