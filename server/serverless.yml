@@ -24,6 +24,10 @@ provider:
         - cognito-idp:AdminRemoveUserFromGroup
         - cognito-idp:AdminAddUserToGroup
       Resource: "arn:aws:cognito-idp:eu-west-2:*:*"
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+      Resource: "*"
   apiKeys:
     - devKey
 
