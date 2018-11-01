@@ -29,6 +29,14 @@ class CookieService {
         return "Unknown User";
     }
 
+    public static getGroups() {
+        const payload: any = this.decode();
+        if (payload) {
+            const groups = payload["cognito:groups"];
+            return groups ? groups : [];
+        }
+    }
+
     public static isExpired() {
         const now = Math.round(new Date().getTime() / 1000);
         const payload: any = this.decode();
@@ -38,6 +46,10 @@ class CookieService {
         }
 
         return true;
+    }
+
+    public static clear() {
+        Cookies.remove('jwt');
     }
 
     private static decode() {

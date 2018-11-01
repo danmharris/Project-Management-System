@@ -6,10 +6,12 @@ import { isProjectParams, Project } from "./project";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 let user: string;
+let groups: string[]
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
     user = event.requestContext.authorizer.claims.sub;
+    groups = event.requestContext.authorizer.claims["cognito:groups"];
 
     switch (event.httpMethod) {
         case "GET":
@@ -27,6 +29,7 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
 const project: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
     user = event.requestContext.authorizer.claims.sub;
+    groups = event.requestContext.authorizer.claims["cognito:groups"];
     const uuid = event.pathParameters.uuid;
 
     switch (event.httpMethod) {
@@ -48,6 +51,7 @@ const project: Handler = (event: any, context: Context, callback: Callback) => {
 const projectDevelopers: Handler = (event: any, context: Context, callback: Callback) => {
     const body = JSON.parse(event.body);
     user = event.requestContext.authorizer.claims.sub;
+    groups = event.requestContext.authorizer.claims["cognito:groups"];
     const uuid = event.pathParameters.uuid;
 
     switch (event.httpMethod) {
@@ -77,7 +81,7 @@ function getAll(): Promise<any> {
 
 function put(uuid: string, body: any): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
-        if (proj.manager !== user) {
+        if (!canWrite(proj)) {
             return Promise.reject("Unauthorized");
         }
 
@@ -88,7 +92,7 @@ function put(uuid: string, body: any): Promise<any> {
 
 function remove(uuid: string): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
-        if (proj.manager !== user) {
+        if (!canWrite(proj)) {
             return Promise.reject("Unauthorized");
         }
 
@@ -103,6 +107,10 @@ function post(body: any): Promise<any> {
         return Promise.reject("Invalid request");
     }
 
+    if (!groups) {
+        return Promise.reject("Unauthorized");
+    }
+
     return new Project(body, dynamo).save().then((uuid: string) => {
         return { uuid };
     });
@@ -110,7 +118,7 @@ function post(body: any): Promise<any> {
 
 function addDevelopers(uuid: string, body: any): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
-        if (proj.manager !== user && body.subs.indexOf(user) < 0) {
+        if (!canWrite(proj) && (body.subs.indexOf(user) < 0 || body.subs.length > 1)) {
             return Promise.reject("Unauthorized");
         }
 
@@ -120,12 +128,25 @@ function addDevelopers(uuid: string, body: any): Promise<any> {
 
 function removeDevelopers(uuid: string, body: any): Promise<any> {
     return Project.getById(uuid, dynamo).then((proj: Project) => {
-        if (proj.manager !== user && body.subs.indexOf(user) < 0) {
+        if (!canWrite(proj) && (body.subs.indexOf(user) < 0 || body.subs.length > 1)) {
             return Promise.reject("Unauthorized");
         }
 
         return proj.removeDevelopers(body.subs);
     });
+}
+
+function canWrite(proj: Project): boolean {
+    if (proj.manager === user) {
+        return true;
+    }
+
+    if (!groups) {
+        return false;
+    }
+
+    return groups.indexOf("ProjectManagers") > -1 ||
+        groups.indexOf("Admins") > -1;
 }
 
 export { projects, project, projectDevelopers };

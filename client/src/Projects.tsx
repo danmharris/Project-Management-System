@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import ProjectService from './service/project';
 
 import ProjectList from './ProjectList';
+import CookieService from './service/cookie';
 
 interface ProjectsState {
     err: string,
@@ -27,9 +28,16 @@ class Projects extends React.Component<{}, ProjectsState> {
     }
 
     public render() {
+        let createButton: any = null;
+        const groups = CookieService.getGroups();
+
+        if (groups.indexOf("ProjectManagers") > -1 || groups.indexOf("Admins") > -1) {
+            createButton = <Link to="/new_project"><Button bsClass="float-right">Create</Button></Link>;
+        }
+
         return (
             <div>
-                <Link to="/new_project"><Button bsClass="float-right">Create</Button></Link>
+                {createButton}
                 <PageHeader>
                     Projects
                 </PageHeader>

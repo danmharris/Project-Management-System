@@ -7,6 +7,7 @@ import CookieService from './service/cookie';
 
 import config from './config/config';
 import Dashboard from './Dashboard';
+import Logout from './Logout';
 import MyProjects from './MyProjects';
 import Navigation from './Navigation';
 import NewProject from './NewProject';
@@ -27,6 +28,14 @@ class App extends React.Component {
       window.location.replace(`${config.LOGIN_URL}&redirect_uri=${window.location}`);
     }
 
+    const groups = CookieService.getGroups();
+    let projectManagerRoutes: any[] = [];
+
+    if (groups.indexOf("ProjectManagers") > -1 || groups.indexOf("Admins") > -1) {
+      projectManagerRoutes = [
+        <Route key="newProject" path="/new_project" component={NewProject} />
+      ];
+    }
 
     return (
       <div className="App">
@@ -36,10 +45,11 @@ class App extends React.Component {
             <Switch>
               <Route path="/projects/:uuid" component={Project} />
               <Route path="/projects" component={Projects} />
-              <Route path="/new_project" component={NewProject} />
+              {projectManagerRoutes}
               <Route path="/users" component={Users} />
               <Route path="/profile" component={Profile} />
               <Route path="/my_projects" component={MyProjects} />
+              <Route path="/logout" component={Logout} />
               <Route path="/" component={Dashboard} />
             </Switch>
           </Router>

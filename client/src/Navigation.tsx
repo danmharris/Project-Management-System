@@ -36,7 +36,7 @@ class Navigation extends React.Component {
                     <NavItem href="#">
                       Settings
                     </NavItem>
-                    <NavItem href="#">
+                    <NavItem href="/logout">
                       Logout
                     </NavItem>
                   </NavDropdown>
