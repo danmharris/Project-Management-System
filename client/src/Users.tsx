@@ -7,6 +7,7 @@ import UserService from './service/user';
 
 interface UsersState {
     users: any[];
+    search: string;
     selectedUser: any;
     selectedUserSkills: string[];
     selectedUserGroup: string;
@@ -18,6 +19,7 @@ class Users extends React.Component<{}, UsersState> {
         super(props, context);
 
         this.state = {
+            search: '',
             selectedUser: null,
             selectedUserGroup: '',
             selectedUserSkills: [],
@@ -33,6 +35,7 @@ class Users extends React.Component<{}, UsersState> {
         this.renderGroupList = this.renderGroupList.bind(this);
         this.onGroupChange = this.onGroupChange.bind(this);
         this.onGroupSubmit = this.onGroupSubmit.bind(this);
+        this.onSearchChange = this.onSearchChange.bind(this);
 
         UserService.getAll().then((res: any) => {
             this.setState({
@@ -47,6 +50,11 @@ class Users extends React.Component<{}, UsersState> {
                 <PageHeader>
                     Users
                 </PageHeader>
+                <form>
+                    <FormGroup controlId="form-search">
+                        <FormControl type="text" value={this.state.search} onChange={this.onSearchChange} placeholder="Search..."/>
+                    </FormGroup>
+                </form>
                 <ListGroup>
                     {this.renderUserList()}
                 </ListGroup>
@@ -113,7 +121,7 @@ class Users extends React.Component<{}, UsersState> {
     }
 
     private renderUserList() {
-        return this.state.users.map((user: any) =>
+        return this.state.users.filter(user => user.name.toLowerCase().includes(this.state.search)).map((user: any) =>
             <ListGroupItem header={user.name} value={user.sub} key={user.sub} onClick={this.onUserClick}>
                 {user.email}
             </ListGroupItem>
@@ -160,6 +168,10 @@ class Users extends React.Component<{}, UsersState> {
 
     private onGroupSubmit() {
         UserService.setGroup(this.state.selectedUser.username, this.state.selectedUserGroup);
+    }
+
+    private onSearchChange(e: any) {
+        this.setState({ search: e.target.value.toLowerCase() });
     }
 }
 

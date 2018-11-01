@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, PageHeader } from 'react-bootstrap';
+import { Button, FormControl, FormGroup, PageHeader } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import ProjectService from './service/project';
@@ -8,17 +8,21 @@ import ProjectList from './ProjectList';
 import CookieService from './service/cookie';
 
 interface ProjectsState {
-    err: string,
-    projects: any[],
+    err: string;
+    projects: any[];
+    search: string;
 }
 
 class Projects extends React.Component<{}, ProjectsState> {
     constructor(props: any, context: any) {
         super(props, context);
 
+        this.onSearchChange = this.onSearchChange.bind(this);
+
         this.state = {
             err: '',
             projects: [],
+            search: '',
         };
 
         ProjectService.getAll().then((res: any) => {
@@ -41,9 +45,18 @@ class Projects extends React.Component<{}, ProjectsState> {
                 <PageHeader>
                     Projects
                 </PageHeader>
-                <ProjectList projects={this.state.projects} showRole={true} />
+                <form>
+                    <FormGroup controlId="form-search">
+                        <FormControl type="text" value={this.state.search} onChange={this.onSearchChange} placeholder="Search..."/>
+                    </FormGroup>
+                </form>
+                <ProjectList projects={this.state.projects.filter(proj => proj.name.toLowerCase().includes(this.state.search))} showRole={true} />
             </div>
         );
+    }
+
+    private onSearchChange(e: any) {
+        this.setState({ search: e.target.value.toLowerCase() });
     }
 }
 
