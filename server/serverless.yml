@@ -33,7 +33,7 @@ provider:
 
 functions:
   projects:
-    handler: projectHandler.projects
+    handler: handler.projects
     name: ${self:provider.stage}-projectsHandler
     description: Handles API calls related to projects collection
     events:
@@ -50,7 +50,7 @@ functions:
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   project:
-    handler: projectHandler.project
+    handler: handler.project
     name: ${self:provider.stage}-projectHandler
     description: Handles API calls related to a project
     events:
@@ -73,7 +73,7 @@ functions:
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   projectDevelopers:
-    handler: projectHandler.projectDevelopers
+    handler: handler.projectDevelopers
     name: ${self:provider.stage}-projectDevelopersHandler
     descrition: Handles API calls related to developers on a project
     events:
@@ -90,7 +90,7 @@ functions:
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   user:
-    handler: userHandler.users
+    handler: handler.users
     name: ${self:provider.stage}-userHandler
     description: Handles API calls related to users
     events:
@@ -113,7 +113,7 @@ functions:
           authorizer:
             arn: arn:aws:cognito-idp:eu-west-2:485681223941:userpool/eu-west-2_zVlfrxmDj
   userGroups:
-    handler: userHandler.userGroups
+    handler: handler.userGroups
     name: ${self:provider.stage}-userGroupsHandler
     description: Handles API calls related to user groups
     events:

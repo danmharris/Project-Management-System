@@ -3,7 +3,7 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import { User, UserParams } from "../user";
+import { User, UserParams } from "../models/user";
 
 describe("User", () => {
     let cognitoProvider: any;

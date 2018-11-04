@@ -3,7 +3,7 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import { UserSkills, UserSkillsParams } from "../userSkills";
+import { UserSkills, UserSkillsParams } from "../models/userSkills";
 
 describe("UserSkills", () => {
     let dbh: any;

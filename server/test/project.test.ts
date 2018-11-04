@@ -3,7 +3,7 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../project";
+import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../models/project";
 
 describe("Project", () => {
     let params: ProjectParams;
