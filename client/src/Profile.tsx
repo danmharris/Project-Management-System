@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, ControlLabel, FormControl, FormGroup, InputGroup, PageHeader } from 'react-bootstrap';
+import { Alert, Button, ControlLabel, FormControl, FormGroup, InputGroup, PageHeader } from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import UserService from './service/user';
@@ -10,6 +10,7 @@ interface ProfileState {
     sub: string;
     skillInput: string;
     skills: string[];
+    err: string;
 }
 
 class Profile extends React.Component<{}, ProfileState> {
@@ -17,6 +18,7 @@ class Profile extends React.Component<{}, ProfileState> {
         super(props, context);
 
         this.state = {
+            err: '',
             name: CookieService.getName(),
             skillInput: '',
             skills: [],
@@ -31,12 +33,18 @@ class Profile extends React.Component<{}, ProfileState> {
 
         UserService.getSkills(this.state.sub).then((res: any) => {
             this.setState({ skills: res.data.skills });
-        });
+        }).catch((err) => this.setState({ err: `Unable to get skills. Reason: ${err.data.message}`}));
     }
 
     public render() {
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <div>
+                {alert}
                 <PageHeader>
                     My Profile
                 </PageHeader>
@@ -81,7 +89,8 @@ class Profile extends React.Component<{}, ProfileState> {
     }
 
     private onUpdateClick() {
-        UserService.updateSkills(this.state.sub, this.state.skills);
+        UserService.updateSkills(this.state.sub, this.state.skills)
+            .catch((error) => this.setState({ err: `Unable to update skills. Reason: ${error.data.message}`}));
     }
 }
 

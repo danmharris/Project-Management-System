@@ -6,7 +6,6 @@ interface EditProjectState {
     description: string;
     status: number;
     err: string;
-    success: string;
 }
 
 interface EditProjectProps {
@@ -31,7 +30,6 @@ class EditProject extends React.Component<EditProjectProps, EditProjectState> {
             err: '',
             name: props.name ? props.name: '',
             status: props.status ? props.status: 0,
-            success: '',
         };
     }
 
@@ -39,10 +37,6 @@ class EditProject extends React.Component<EditProjectProps, EditProjectState> {
         let alert: any;
         if (this.state.err) {
             alert = <Alert bsStyle="danger">{this.state.err}</Alert>
-        }
-
-        if (this.state.success) {
-            alert = <Alert bsStyle="info">{this.state.success}</Alert>
         }
 
         return (
@@ -125,7 +119,6 @@ class EditProject extends React.Component<EditProjectProps, EditProjectState> {
 
     private handleSubmit(e: any): void {
        this.props.onSubmit(this.state.name, this.state.description, this.state.status)
-            .then(() => this.setState({ success: "Successfully saved" }))
             .catch(() => this.setState({ err: "Unable to save project. Please try again later"}));
     }
 

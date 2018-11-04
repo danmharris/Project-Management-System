@@ -15,7 +15,7 @@ interface ProjectState {
     description: string;
     developers: string[];
     manager: string;
-    err: '';
+    err: string;
     edit: boolean;
     uuid: string;
     users: any[];
@@ -52,7 +52,7 @@ class Project extends React.Component<{}, ProjectState> {
             this.setState({
                 users: res.data,
             });
-        });
+        }).catch((error) => this.setState({ err: `Unable to get users of project. Reason: ${error.data.message}`}));
 
         ProjectService.getByUUID(this.state.uuid).then((res: any) => {
             this.setState({
@@ -62,11 +62,16 @@ class Project extends React.Component<{}, ProjectState> {
                 name: res.data.name,
                 status: +res.data.status,
             });
-        });
+        }).catch((error) => this.setState({ err: `Unable to get project. Reason: ${error.data.message}`}));
 
     }
 
     public render() {
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         if (this.state.edit) {
             return (
                 <div>
@@ -79,6 +84,7 @@ class Project extends React.Component<{}, ProjectState> {
         } else {
             return (
                 <div>
+                    {alert}
                     {this.renderEditButton()}
                     <PageHeader>{this.state.name} <Badge>{this.state.developers.length + 1}</Badge> <Badge>{this.getStatusString()}</Badge></PageHeader>
                     <Panel><Panel.Body>{this.state.description}</Panel.Body></Panel>
@@ -122,7 +128,8 @@ class Project extends React.Component<{}, ProjectState> {
     }
 
     private onDeleteClick() {
-        ProjectService.deleteProject(this.state.uuid).then(() => window.location.replace('/projects'));
+        ProjectService.deleteProject(this.state.uuid).then(() => window.location.replace('/projects'))
+            .catch((error) => this.setState({ err: `Unable to delete project. Reason: ${error.data.message}`}));;
     }
 
     private getManager() {
@@ -158,11 +165,13 @@ class Project extends React.Component<{}, ProjectState> {
     }
 
     private onJoinClick() {
-        ProjectService.addDevelopers(this.state.uuid, [CookieService.getSub()]);
+        ProjectService.addDevelopers(this.state.uuid, [CookieService.getSub()])
+            .catch((error) => this.setState({ err: `Unable to join. Reason: ${error.data.message}`}));;
     }
 
     private onLeaveClick() {
-        ProjectService.removeDevelopers(this.state.uuid, [CookieService.getSub()]);
+        ProjectService.removeDevelopers(this.state.uuid, [CookieService.getSub()])
+            .catch((error) => this.setState({ err: `Unable to leave. Reason: ${error.data.message}`}));
     }
 }
 

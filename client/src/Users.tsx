@@ -12,6 +12,7 @@ interface UsersState {
     selectedUserSkills: string[];
     selectedUserGroup: string;
     showModal: boolean;
+    err: string;
 }
 
 class Users extends React.Component<{}, UsersState> {
@@ -19,6 +20,7 @@ class Users extends React.Component<{}, UsersState> {
         super(props, context);
 
         this.state = {
+            err: '',
             search: '',
             selectedUser: null,
             selectedUserGroup: '',
@@ -41,12 +43,18 @@ class Users extends React.Component<{}, UsersState> {
             this.setState({
                 users: res.data,
             });
-        });
+        }).catch((error) => this.setState({ err: `Unable to get users. Reason: ${error.data.message}`}));
     }
 
     public render() {
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <div>
+                {alert}
                 <PageHeader>
                     Users
                 </PageHeader>
@@ -100,14 +108,14 @@ class Users extends React.Component<{}, UsersState> {
                 selectedUserSkills: res.data.skills,
                 showModal: true,
             });
-        });
+        }).catch((error) => this.setState({ err: `Unable to get user information. Reason: ${error.data.message}`}));;
 
         if (isAdmin) {
             UserService.getGroup(selectedUser.username).then((res: any) => {
                 this.setState({
                     selectedUserGroup: res.data.group,
                 });
-            });
+            }).catch((error) => this.setState({ err: `Unable to get group information. Reason: ${error.data.message}`}));;
         }
     }
 
@@ -167,7 +175,8 @@ class Users extends React.Component<{}, UsersState> {
     }
 
     private onGroupSubmit() {
-        UserService.setGroup(this.state.selectedUser.username, this.state.selectedUserGroup);
+        UserService.setGroup(this.state.selectedUser.username, this.state.selectedUserGroup)
+            .catch((error) => this.setState({ err: `Unable to update group. Reason: ${error.data.message}`}));;
     }
 
     private onSearchChange(e: any) {
