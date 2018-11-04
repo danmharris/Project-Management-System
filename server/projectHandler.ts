@@ -3,8 +3,12 @@ import * as AWS from "aws-sdk";
 
 import { handle } from "./handler";
 import { isProjectParams, Project } from "./project";
+import { User } from "./user";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
+const cognito = new AWS.CognitoIdentityServiceProvider();
+const ses = new AWS.SES({ region: "eu-west-1"});
+const COGNITO_POOL = "eu-west-2_zVlfrxmDj";
 let user: string;
 let groups: string[]
 
@@ -116,13 +120,50 @@ function post(body: any): Promise<any> {
     });
 }
 
-function addDevelopers(uuid: string, body: any): Promise<any> {
-    return Project.getById(uuid, dynamo).then((proj: Project) => {
-        if (!canWrite(proj) && (body.subs.indexOf(user) < 0 || body.subs.length > 1)) {
-            return Promise.reject("Unauthorized");
-        }
+async function addDevelopers(uuid: string, body: any): Promise<any> {
+    const proj: Project = await Project.getById(uuid, dynamo);
+    if (!canWrite(proj) && (body.subs.indexOf(user) < 0 || body.subs.length > 1)) {
+        return Promise.reject("Unauthorized");
+    }
 
-        return proj.addDevelopers(body.subs);
+    await proj.addDevelopers(body.subs);
+
+    let users: User[] = await User.getAll(cognito, COGNITO_POOL);
+    let message: string;
+    if (body.subs.length === 1 && body.subs.indexOf(user) > -1) {
+        users = users.filter((user: User) => user.sub === proj.manager);
+        message = `${users[0].name} has joined project ${proj.name}`;
+    } else {
+        users = users.filter((user: User) => body.subs.indexOf(user.sub) > -1);
+        message = `You have been added to project ${proj.name}`;
+    }
+
+    var emailParams = {
+        Destination: {
+            ToAddresses: users.map((user: User) => user.email)
+        },
+        Message: {
+            Body: {
+                Text: {
+                    Charset: "UTF-8",
+                    Data: message,
+                },
+            },
+            Subject: {
+                Charset: "UTF-8",
+                Data: "Project developers update",
+            },
+        },
+        Source: "dmh2g16@soton.ac.uk",
+    };
+
+    return new Promise<any>((resolve, reject) => {
+        ses.sendEmail(emailParams, (err: any, res: any) => {
+            if (err) {
+                reject(err);
+            }
+            resolve();
+        });
     });
 }
 
