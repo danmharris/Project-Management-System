@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { PageHeader } from 'react-bootstrap';
+import { FormControl, FormGroup, PageHeader } from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import ProjectService from './service/project';
@@ -11,6 +11,7 @@ interface DashboardState {
     active: any[];
     complete: any[];
     pending: any[];
+    search: string;
 }
 
 class Dashboard extends React.Component<{}, DashboardState> {
@@ -18,10 +19,13 @@ class Dashboard extends React.Component<{}, DashboardState> {
     constructor(props: any, context: any) {
         super(props, context);
 
+        this.onSearchChange = this.onSearchChange.bind(this);
+
         this.state = {
             active: [],
             complete: [],
             pending: [],
+            search: '',
         };
 
         ProjectService.getAll().then((res: any) => {
@@ -42,11 +46,20 @@ class Dashboard extends React.Component<{}, DashboardState> {
                 <PageHeader>
                     Project Status
                 </PageHeader>
-                <ProjectList projects={this.state.active} header="Active" />
-                <ProjectList projects={this.state.pending} header="Pending" />
-                <ProjectList projects={this.state.complete} header="Complete" />
+                <form>
+                    <FormGroup controlId="form-search">
+                        <FormControl type="text" value={this.state.search} onChange={this.onSearchChange} placeholder="Search..." />
+                    </FormGroup>
+                </form>
+                <ProjectList projects={this.state.active.filter(proj => proj.name.toLowerCase().includes(this.state.search))} header="Active" />
+                <ProjectList projects={this.state.pending.filter(proj => proj.name.toLowerCase().includes(this.state.search))} header="Pending" />
+                <ProjectList projects={this.state.complete.filter(proj => proj.name.toLowerCase().includes(this.state.search))} header="Complete" />
             </div>
         );
+    }
+
+    private onSearchChange(e: any) {
+        this.setState({ search: e.target.value.toLowerCase() });
     }
 }
 
