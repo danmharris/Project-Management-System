@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, FormControl, FormGroup, PageHeader } from 'react-bootstrap';
+import { Alert, Button, FormControl, FormGroup, PageHeader } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import ProjectService from './service/project';
@@ -27,7 +27,7 @@ class Projects extends React.Component<{}, ProjectsState> {
 
         ProjectService.getAll().then((res: any) => {
             this.setState({ projects: res.data });
-        });
+        }).catch((error) => this.setState({ err: `Unable to get projects. Reason: ${error.data.message}`}));;
 
     }
 
@@ -39,8 +39,14 @@ class Projects extends React.Component<{}, ProjectsState> {
             createButton = <Link to="/new_project"><Button bsClass="float-right">Create</Button></Link>;
         }
 
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <div>
+                {alert}
                 {createButton}
                 <PageHeader>
                     Projects

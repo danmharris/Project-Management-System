@@ -1,5 +1,7 @@
 import * as uuidv1 from "uuid/v1";
 
+import APIError from '../error';
+
 const TABLE_NAME = "projects";
 
 enum ProjectStatus {
@@ -57,7 +59,7 @@ class Project {
         return new Promise((resolve, reject) => {
             dbh.get(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to retrieve project");
+                    reject(new APIError("Unable to retrieve project"));
                 } else {
                     if (res.Item.developers) {
                         res.Item.developers = res.Item.developers.values;
@@ -77,7 +79,7 @@ class Project {
         return new Promise((resolve, reject) => {
             dbh.scan(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to retrieve projects");
+                    reject(new APIError("Unable to retrieve projects"));
                 } else {
                     const projects: Project[] = [];
                     for (const item of res.Items) {
@@ -182,7 +184,7 @@ class Project {
         return new Promise((resolve, reject) => {
             this.dbh.put(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Error creating project");
+                    reject(new APIError("Error creating project"));
                 } else {
                     resolve(this.uuid);
                 }
@@ -212,7 +214,7 @@ class Project {
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to update project");
+                    reject(new APIError("Unable to update project"));
                 } else {
                     // TODO: More meaningful return data here
                     resolve(res);
@@ -232,7 +234,7 @@ class Project {
         return new Promise((resolve, reject) => {
             this.dbh.delete(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to delete project");
+                    reject(new APIError("Unable to delete project"));
                 } else {
                     resolve(res);
                 }
@@ -255,7 +257,7 @@ class Project {
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to add developers to project");
+                    reject(new APIError("Unable to add developers to project"));
                 } else {
                     this._developers.push(...subs);
                     resolve(res);
@@ -279,7 +281,7 @@ class Project {
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to remove developers from project");
+                    reject(new APIError("Unable to remove developers from project"));
                 } else {
                     this._developers = this._developers.filter((dev) => subs.indexOf(dev) < 0);
                     resolve(res);

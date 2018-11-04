@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { FormControl, FormGroup, PageHeader } from 'react-bootstrap';
+import { Alert, FormControl, FormGroup, PageHeader } from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import ProjectService from './service/project';
@@ -12,6 +12,7 @@ interface DashboardState {
     complete: any[];
     pending: any[];
     search: string;
+    err: string;
 }
 
 class Dashboard extends React.Component<{}, DashboardState> {
@@ -24,6 +25,7 @@ class Dashboard extends React.Component<{}, DashboardState> {
         this.state = {
             active: [],
             complete: [],
+            err: '',
             pending: [],
             search: '',
         };
@@ -35,14 +37,21 @@ class Dashboard extends React.Component<{}, DashboardState> {
             this.setState({
                 active: projects.filter((project: any) => +project.status === 1),
                 complete: projects.filter((project: any) => +project.status === 2),
+                err: '',
                 pending: projects.filter((project: any) => +project.status === 0),
             });
-        });
+        }).catch((error: any) => this.setState({ err: `Unable to retireve projects list. Reason: ${error.data.message}` }));
     }
 
     public render() {
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <div>
+                {alert}
                 <PageHeader>
                     Project Status
                 </PageHeader>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, ControlLabel, FormControl, FormGroup, InputGroup } from 'react-bootstrap';
+import { Alert, Button, ControlLabel, FormControl, FormGroup, InputGroup } from 'react-bootstrap';
 
 import ProjectService from './service/project';
 
@@ -14,6 +14,7 @@ interface EditProjectDevelopersFormProps {
 interface EditProjectDevelopersFormState {
     managerSub: string;
     developerSubs: string[];
+    err: string;
 }
 
 class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFormProps, EditProjectDevelopersFormState> {
@@ -30,16 +31,21 @@ class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFor
 
         this.state = {
             developerSubs: this.props.developerSubs,
+            err: '',
             managerSub: this.props.managerSub,
         }
-
-        console.log(this.props.managerSub);
 
     }
 
     public render() {
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <div>
+                {alert}
                 <form>
                     <FormGroup
                         controlId='form-manager'
@@ -105,21 +111,23 @@ class EditProjectDevelopersForm extends React.Component<EditProjectDevelopersFor
     private onManagerSubmit(e: any) {
         ProjectService.updateProject(this.props.uuid, {
             manager: this.state.managerSub,
-        });
+        }).catch((error) => this.setState({ err: `Unable to update manager. Reason: ${error.data.message}`}));
     }
 
     private onAddDeveloperClick(e: any) {
         this.setState({
             developerSubs: this.state.developerSubs.concat([e.target.value]),
         });
-        ProjectService.addDevelopers(this.props.uuid, [e.target.value]);
+        ProjectService.addDevelopers(this.props.uuid, [e.target.value])
+            .catch((error) => this.setState({ err: `Unable to add developer. Reason: ${error.data.message}`}));
     }
 
     private onRemoveDeveloperClick(e: any) {
         this.setState({
             developerSubs: this.state.developerSubs.filter(sub => sub !== e.target.value),
         })
-        ProjectService.removeDevelopers(this.props.uuid, [e.target.value]);
+        ProjectService.removeDevelopers(this.props.uuid, [e.target.value])
+            .catch((error) => this.setState({ err: `Unable to remove developer. Reason: ${error.data.message}`}));
     }
 }
 

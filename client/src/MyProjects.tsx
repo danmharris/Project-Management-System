@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { FormControl, FormGroup, PageHeader } from 'react-bootstrap';
+import { Alert, FormControl, FormGroup, PageHeader } from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import ProjectService from './service/project';
@@ -11,6 +11,7 @@ interface MyProjectsState {
     manage: any[];
     develop: any[];
     search: string;
+    err: string;
 }
 
 class MyProjects extends React.Component<{}, MyProjectsState> {
@@ -22,6 +23,7 @@ class MyProjects extends React.Component<{}, MyProjectsState> {
 
         this.state = {
             develop: [],
+            err: '',
             manage: [],
             search: '',
         };
@@ -34,12 +36,18 @@ class MyProjects extends React.Component<{}, MyProjectsState> {
                 develop: projects.filter((project: any) => project.developers.indexOf(sub) > -1),
                 manage: projects.filter((project: any) => project.manager === sub),
             });
-        });
+        }).catch((error) => this.setState({ err: `Unable to get projects. Reason: ${error.data.message}`}));
     }
 
     public render() {
+        let alert: any;
+        if (this.state.err) {
+            alert = <Alert bsStyle="danger">{this.state.err}</Alert>
+        }
+
         return (
             <div>
+                {alert}
                 <PageHeader>
                     My Projects
                 </PageHeader>
