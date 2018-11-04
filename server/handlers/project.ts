@@ -18,40 +18,38 @@ class ProjectHandler {
         this.groups = groups;
     }
 
-    public getById(uuid: string): Promise<any> {
-        return Project.getById(uuid, this.dynamo).then((proj: Project) => {
-            return proj.getParams();
-        });
+    public async getById(uuid: string): Promise<any> {
+        const project: Project = await Project.getById(uuid, this.dynamo);
+        return project.getParams();
     }
 
-    public getAll(): Promise<any> {
-        return Project.getAll(this.dynamo).then((dbProjects: Project[]) => {
-            return dbProjects.map((proj: Project) => proj.getParams());
-        });
+    public async getAll(): Promise<any> {
+        const projects: Project[] = await Project.getAll(this.dynamo);
+        return projects.map((proj: Project) => proj.getParams());
     }
 
-    public update(uuid: string, body: any): Promise<any> {
-        return Project.getById(uuid, this.dynamo).then((proj: Project) => {
-            if (!this.canWrite(proj)) {
-                return Promise.reject("Unauthorized");
-            }
+    public async update(uuid: string, body: any): Promise<any> {
+        const project: Project = await Project.getById(uuid, this.dynamo);
 
-            proj.setParams(body);
-            return proj.update();
-        });
+        if (!this.canWrite(project)) {
+            return Promise.reject("Unauthorized");
+        }
+
+        project.setParams(body);
+        return project.update();
     }
 
-    public remove(uuid: string): Promise<any> {
-        return Project.getById(uuid, this.dynamo).then((proj: Project) => {
-            if (!this.canWrite(proj)) {
-                return Promise.reject("Unauthorized");
-            }
+    public async remove(uuid: string): Promise<any> {
+        const project: Project = await Project.getById(uuid, this.dynamo);
 
-            return proj.delete();
-        });
+        if (!this.canWrite(project)) {
+            return Promise.reject("Unauthorized");
+        }
+
+        return project.delete();
     }
 
-    public save(body: any): Promise<any> {
+    public async save(body: any): Promise<any> {
         body.manager = this.user;
 
         if (!isProjectParams(body)) {
@@ -62,9 +60,8 @@ class ProjectHandler {
             return Promise.reject("Unauthorized");
         }
 
-        return new Project(body, this.dynamo).save().then((uuid: string) => {
-            return { uuid };
-        });
+        const uuid: string = await new Project(body, this.dynamo).save();
+        return { uuid };
     }
 
     public async addDevelopers(uuid: string, body: any): Promise<any> {
@@ -114,14 +111,14 @@ class ProjectHandler {
         });
     }
 
-    public removeDevelopers(uuid: string, body: any): Promise<any> {
-        return Project.getById(uuid, this.dynamo).then((proj: Project) => {
-            if (!this.canWrite(proj) && (body.subs.indexOf(this.user) < 0 || body.subs.length > 1)) {
-                return Promise.reject("Unauthorized");
-            }
+    public async removeDevelopers(uuid: string, body: any): Promise<any> {
+        const project: Project = await Project.getById(uuid, this.dynamo);
 
-            return proj.removeDevelopers(body.subs);
-        });
+        if (!this.canWrite(project) && (body.subs.indexOf(this.user) < 0 || body.subs.length > 1)) {
+            return Promise.reject("Unauthorized");
+        }
+
+        return project.removeDevelopers(body.subs);
     }
 
     private canWrite(proj: Project): boolean {

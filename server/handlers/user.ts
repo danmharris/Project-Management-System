@@ -15,37 +15,36 @@ class UserHandler {
         this.user = user;
     }
 
-    public updateSkills(sub: string, body: any) {
+    public async updateSkills(sub: string, body: any) {
         if (sub !== this.user) {
             return Promise.reject("Unauthorized");
         }
 
-        return UserSkills.getBySub(sub, this.dynamo).then((dbUser: UserSkills) => {
-            dbUser.setParams(body);
-            return dbUser.update();
-        });
+        const dbUser: UserSkills = await UserSkills.getBySub(sub, this.dynamo);
+
+        dbUser.setParams(body);
+        return dbUser.update();
     }
 
-    public getSkills(sub: string) {
-        return UserSkills.getBySub(sub, this.dynamo).then((dbUser: UserSkills) => {
-            return dbUser.getParams();
-        });
+    public async getSkills(sub: string) {
+        const dbUser: UserSkills = await UserSkills.getBySub(sub, this.dynamo);
+
+        return dbUser.getParams();
     }
 
-    public getGroups(username: string) {
-        return User.getGroup(username, this.cognito, this.COGNITO_POOL).then((group: string) => {
-            return { group };
-        });
+    public async getGroups(username: string) {
+        const group: string = await User.getGroup(username, this.cognito, this.COGNITO_POOL);
+        return { group };
     }
 
-    public updateGroup(username: string, group: string) {
+    public async updateGroup(username: string, group: string) {
         return User.setGroup(username, this.cognito, this.COGNITO_POOL, group);
     }
 
-    public getAll() {
-        return User.getAll(this.cognito, this.COGNITO_POOL).then((cognitoUsers: User[]) => {
-            return cognitoUsers.map((cognitoUser: User) => cognitoUser.getParams());
-        });
+    public async getAll() {
+        const users: User[] = await User.getAll(this.cognito, this.COGNITO_POOL);
+
+        return users.map((cognitoUser: User) => cognitoUser.getParams());
     }
 }
 

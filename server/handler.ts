@@ -12,8 +12,9 @@ let user: string;
 let groups: string[];
 let body: any;
 
-const handle = (promise: Promise<any>, callback: Callback) => {
-    promise.then((res) => {
+const handle = async (promise: Promise<any>, callback: Callback) => {
+    try {
+        const res: any = await promise;
         callback(null, {
             body: JSON.stringify(res),
             headers: {
@@ -22,7 +23,7 @@ const handle = (promise: Promise<any>, callback: Callback) => {
             },
             statusCode: "200",
         });
-    }).catch((err) => {
+    } catch (err) {
         callback(null, {
             body: JSON.stringify(err),
             headers: {
@@ -30,7 +31,7 @@ const handle = (promise: Promise<any>, callback: Callback) => {
             },
             statusCode: "400",
         });
-    });
+    }
 };
 
 const init = (event: any) => {
