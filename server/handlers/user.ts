@@ -2,6 +2,8 @@
 import { User } from "../models/user";
 import { UserSkills } from "../models/userSkills";
 
+import APIError from '../error';
+
 class UserHandler {
     private dynamo: any;
     private cognito: any;
@@ -17,7 +19,7 @@ class UserHandler {
 
     public async updateSkills(sub: string, body: any) {
         if (sub !== this.user) {
-            return Promise.reject("Unauthorized");
+            return Promise.reject(new APIError("You cannot modify this user", 403));
         }
 
         const dbUser: UserSkills = await UserSkills.getBySub(sub, this.dynamo);

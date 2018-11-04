@@ -1,3 +1,5 @@
+import APIError from "../error";
+
 interface UserParams {
     sub: string;
     name: string;
@@ -21,7 +23,7 @@ class User {
         return new Promise((resolve, reject) => {
             cognito.listUsers(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to retrieve users");
+                    reject(new APIError("Unable to retrieve users"));
                 } else {
                     resolve(res.Users.map((cognitoUser: any) => {
                         const user: User = new User();
@@ -58,7 +60,7 @@ class User {
         return new Promise((resolve, reject) => {
             cognito.adminListGroupsForUser(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to get groups");
+                    reject(new APIError("Unable to get groups"));
                 } else {
                     if (res.Groups.length > 0) {
                         resolve(res.Groups[0].GroupName);
@@ -85,7 +87,7 @@ class User {
             return new Promise((resolve, reject) => {
                 cognito.adminRemoveUserFromGroup(removeParams, (err: any, res: any) => {
                     if (err) {
-                        reject("Unable to remove old group");
+                        reject(new APIError("Unable to remove old group"));
                     } else {
                         resolve();
                     }
@@ -105,7 +107,7 @@ class User {
             return new Promise((resolve, reject) => {
                 cognito.adminAddUserToGroup(addParams, (err: any, res: any) => {
                     if (err) {
-                        reject("Unable to add new group");
+                        reject(new APIError("Unable to add new group"));
                     } else {
                         resolve();
                     }

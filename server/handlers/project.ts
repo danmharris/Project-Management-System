@@ -1,6 +1,8 @@
 import { isProjectParams, Project } from "../models/project";
 import { User } from "../models/user";
 
+import APIError from '../error';
+
 class ProjectHandler {
     private dynamo: any;
     private ses: any;
@@ -32,7 +34,7 @@ class ProjectHandler {
         const project: Project = await Project.getById(uuid, this.dynamo);
 
         if (!this.canWrite(project)) {
-            return Promise.reject("Unauthorized");
+            return Promise.reject(new APIError("You cannot update this project", 403));
         }
 
         project.setParams(body);
@@ -43,7 +45,7 @@ class ProjectHandler {
         const project: Project = await Project.getById(uuid, this.dynamo);
 
         if (!this.canWrite(project)) {
-            return Promise.reject("Unauthorized");
+            return Promise.reject(new APIError("You cannot remove this project", 403));
         }
 
         return project.delete();
@@ -53,11 +55,11 @@ class ProjectHandler {
         body.manager = this.user;
 
         if (!isProjectParams(body)) {
-            return Promise.reject("Invalid request");
+            return Promise.reject(new APIError("Invalid request", 400));
         }
 
         if (!this.groups) {
-            return Promise.reject("Unauthorized");
+            return Promise.reject(new APIError("You cannot create a project", 403));
         }
 
         const uuid: string = await new Project(body, this.dynamo).save();
@@ -67,7 +69,7 @@ class ProjectHandler {
     public async addDevelopers(uuid: string, body: any): Promise<any> {
         const proj: Project = await Project.getById(uuid, this.dynamo);
         if (!this.canWrite(proj) && (body.subs.indexOf(this.user) < 0 || body.subs.length > 1)) {
-            return Promise.reject("Unauthorized");
+            return Promise.reject(new APIError("You cannot edit developers this project", 403));
         }
 
         await proj.addDevelopers(body.subs);
@@ -104,7 +106,7 @@ class ProjectHandler {
         return new Promise<any>((resolve, reject) => {
             this.ses.sendEmail(emailParams, (err: any, res: any) => {
                 if (err) {
-                    reject(err);
+                    reject(new APIError("Email cannot be sent", 401));
                 }
                 resolve();
             });
@@ -115,7 +117,7 @@ class ProjectHandler {
         const project: Project = await Project.getById(uuid, this.dynamo);
 
         if (!this.canWrite(project) && (body.subs.indexOf(this.user) < 0 || body.subs.length > 1)) {
-            return Promise.reject("Unauthorized");
+            return Promise.reject(new APIError("You cannot edit developers this project", 403));
         }
 
         return project.removeDevelopers(body.subs);

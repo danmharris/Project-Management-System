@@ -1,3 +1,5 @@
+import APIError from "../error";
+
 const TABLE_NAME = "users";
 
 interface UserSkillsParams {
@@ -17,7 +19,7 @@ class UserSkills {
         return new Promise((resolve, reject) => {
             dbh.get(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to retrieve user");
+                    reject(new APIError("Unable to retrieve user"));
                 } else if (res.Item) {
                     resolve(new UserSkills(res.Item, dbh));
                 } else {
@@ -86,7 +88,7 @@ class UserSkills {
         return new Promise((resolve, reject) => {
             this.dbh.update(params, (err: any, res: any) => {
                 if (err) {
-                    reject("Unable to update user");
+                    reject(new APIError("Unable to update user"));
                 } else {
                     resolve(this);
                 }

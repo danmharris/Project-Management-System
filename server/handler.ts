@@ -1,6 +1,7 @@
 import { Callback, Context, Handler } from "aws-lambda";
 import * as AWS from "aws-sdk";
 
+import APIError from './error';
 import { ProjectHandler } from './handlers/project';
 import { UserHandler } from "./handlers/user";
 
@@ -25,11 +26,12 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
         });
     } catch (err) {
         callback(null, {
-            body: JSON.stringify(err),
+            body: JSON.stringify(err.message),
             headers: {
                 "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": '*',
             },
-            statusCode: "400",
+            statusCode: err.status,
         });
     }
 };
@@ -52,7 +54,7 @@ const projects: Handler = (event: any, context: Context, callback: Callback) => 
             handle(projectHandler.save(body), callback);
             break;
         default:
-            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            handle(Promise.reject(new APIError(`Unsupported method "${event.httpMethod}"`, 501)), callback);
             break;
     }
 };
@@ -73,7 +75,7 @@ const project: Handler = (event: any, context: Context, callback: Callback) => {
             handle(projectHandler.remove(uuid), callback);
             break;
         default:
-            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            handle(Promise.reject(new APIError(`Unsupported method "${event.httpMethod}"`, 501)), callback);
             break;
     }
 };
@@ -91,7 +93,7 @@ const projectDevelopers: Handler = (event: any, context: Context, callback: Call
             handle(projectHandler.removeDevelopers(uuid, body), callback);
             break;
         default:
-            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            handle(Promise.reject(new APIError(`Unsupported method "${event.httpMethod}"`, 501)), callback);
             break;
     }
 };
@@ -112,7 +114,7 @@ const users: Handler = (event: any, context: Context, callback: Callback) => {
             }
             break;
         default:
-            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            handle(Promise.reject(new APIError(`Unsupported method "${event.httpMethod}"`, 501)), callback);
             break;
     }
 };
@@ -123,11 +125,11 @@ const userGroups: Handler = (event: any, context: Context, callback: Callback) =
     const username = event.pathParameters.username;
 
     if (!groups) {
-        handle(Promise.reject("Unauthorized"), callback);
+        handle(Promise.reject(new APIError("Forbidden", 403)), callback);
     }
 
     if (groups.indexOf("Admins") < 0) {
-        handle(Promise.reject("Unauthorized"), callback);
+        handle(Promise.reject(new APIError("Forbidden", 403)), callback);
     }
 
     switch (event.httpMethod) {
@@ -138,7 +140,7 @@ const userGroups: Handler = (event: any, context: Context, callback: Callback) =
             handle(userHandler.updateGroup(username, body.group), callback);
             break;
         default:
-            handle(Promise.reject(`Unsupported method "${event.httpMethod}"`), callback);
+            handle(Promise.reject(new APIError(`Unsupported method "${event.httpMethod}"`, 501)), callback);
             break;
     }
 };
