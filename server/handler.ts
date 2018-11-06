@@ -5,14 +5,25 @@ import APIError from "./error";
 import { ProjectHandler } from "./handlers/project";
 import { UserHandler } from "./handlers/user";
 
+/**
+ * Main Handler functions to be provided to Lambda functions
+ * They handle the routing from API gateway and pass off to specific handlers
+ */
+
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const cognito = new AWS.CognitoIdentityServiceProvider();
 const ses = new AWS.SES({ region: "eu-west-1"});
 let COGNITO_POOL: string;
-let user: string;
-let groups: string[];
-let body: any;
+let user: string; // The user sub
+let groups: string[]; // Group(s) the user is in
+let body: any; // Body of the request (if any)
 
+/**
+ * Generic handler function, takes a promise from a handler and processes
+ * its response.
+ * @param promise The promise to handle
+ * @param callback Function to callback when done (Lambda callback)
+ */
 const handle = async (promise: Promise<any>, callback: Callback) => {
     try {
         const res: any = await promise;
@@ -36,12 +47,26 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
     }
 };
 
+/**
+ * Initialises handlers by setting necessary parameters
+ * @param event The event passed to the Lambda
+ */
 const init = (event: any) => {
     body = JSON.parse(event.body);
     user = event.requestContext.authorizer.claims.sub;
     groups = event.requestContext.authorizer.claims["cognito:groups"];
     COGNITO_POOL = process.env.COGNITO_POOL ? process.env.COGNITO_POOL : "";
 };
+
+/**
+ * All the below functions correspond to a single Lambda function.
+ * See serverless.yml for mapping
+ *
+ * All have a switch statement for the type of request, and pass of to the
+ * appropriate handler
+ *
+ * NOTE: Based off Lambda blueprint
+ */
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {
     init(event);

@@ -3,6 +3,9 @@ import { User } from "../models/user";
 
 import APIError from "../error";
 
+/**
+ * Handler functions for any operation to be performed on Projects (either individual or collection)
+ */
 class ProjectHandler {
     private dynamo: any;
     private ses: any;
@@ -11,6 +14,9 @@ class ProjectHandler {
     private user: string;
     private groups: string[];
 
+    /**
+     * When constructing provide all the classes which may be required to handle a request
+     */
     constructor(dynamo: any, ses: any, cognito: any, pool: string, user: string, groups: string[]) {
         this.dynamo = dynamo;
         this.ses = ses;
@@ -33,6 +39,7 @@ class ProjectHandler {
     public async update(uuid: string, body: any): Promise<any> {
         const project: Project = await Project.getById(uuid, this.dynamo);
 
+        // Access Control check. If permissions not met a 403 forbidden is returned
         if (!this.canWrite(project)) {
             return Promise.reject(new APIError("You cannot update this project", 403));
         }
@@ -68,6 +75,8 @@ class ProjectHandler {
 
     public async addDevelopers(uuid: string, body: any): Promise<any> {
         const proj: Project = await Project.getById(uuid, this.dynamo);
+
+        // Checks who the user can add to the project. If manager can be anyone, otherwise can only be self
         if (!this.canWrite(proj) && (body.subs.indexOf(this.user) < 0 || body.subs.length > 1)) {
             return Promise.reject(new APIError("You cannot edit developers this project", 403));
         }
@@ -76,6 +85,8 @@ class ProjectHandler {
 
         let users: User[] = await User.getAll(this.cognito, this.COGNITO_POOL);
         let message: string;
+
+        // Constructs an email body based on whether the user has joined or been added.
         if (body.subs.length === 1 && body.subs.indexOf(this.user) > -1) {
             users = users.filter((user: User) => user.sub === proj.manager);
             message = `${users[0].name} has joined project ${proj.name}`;
@@ -123,6 +134,11 @@ class ProjectHandler {
         return project.removeDevelopers(body.subs);
     }
 
+    /**
+     * Evaluates whether the user can write to the project.
+     *
+     * Either has to be the project manager or in the project manager group
+     */
     private canWrite(proj: Project): boolean {
         if (proj.manager === this.user) {
             return true;

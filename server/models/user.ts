@@ -8,7 +8,15 @@ interface UserParams {
     username: string;
 }
 
+/**
+ * Model class representing a User (links with Cognito not database)
+ */
 class User {
+    /**
+     * Get all the users registered on the system
+     * @param cognito The cognito sdk object
+     * @param poolId The ID of the pool to retrieve from
+     */
     public static getAll(cognito: any, poolId: string): Promise<User[]> {
         const params = {
             UserPoolId: poolId,
@@ -28,6 +36,7 @@ class User {
                     resolve(res.Users.map((cognitoUser: any) => {
                         const user: User = new User();
                         user._username = cognitoUser.Username;
+                        // Data is returned in a different format, so needs to be processed
                         for (const attrib of cognitoUser.Attributes) {
                             switch (attrib.Name) {
                                 case "sub":
@@ -51,6 +60,12 @@ class User {
         });
     }
 
+    /**
+     * Gets the group a user is a member of
+     * @param username The username of the user
+     * @param cognito The cognito sdk object
+     * @param poolId The ID of the pool the user is in
+     */
     public static getGroup(username: string, cognito: any, poolId: string): Promise<string> {
         const params = {
             UserPoolId: poolId,
@@ -72,6 +87,13 @@ class User {
         });
     }
 
+    /**
+     * Updates the group of the user, by removing them from their old one and adding them to the new one
+     * @param username The username of the user to move
+     * @param cognito The cognito sdk object
+     * @param poolId The ID of the user pool the user is in
+     * @param group The group to put the user in
+     */
     public static setGroup(username: string, cognito: any, poolId: string, group: string): Promise<any> {
         return this.getGroup(username, cognito, poolId).then((oldGroup: string) => {
             if (oldGroup === "Developers") {
@@ -142,6 +164,9 @@ class User {
         return this._username;
     }
 
+    /**
+     * Returns the fields of this user as a single object
+     */
     public getParams(): UserParams {
         return {
             address: this.address,
