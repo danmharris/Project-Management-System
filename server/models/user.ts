@@ -94,7 +94,7 @@ class User {
                 });
             });
         }).then(() => {
-            if(group === "Developers") {
+            if (group === "Developers") {
                 return Promise.resolve({});
             }
 

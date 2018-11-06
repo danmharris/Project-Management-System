@@ -1,6 +1,6 @@
 import * as uuidv1 from "uuid/v1";
 
-import APIError from '../error';
+import APIError from "../error";
 
 const TABLE_NAME = "projects";
 

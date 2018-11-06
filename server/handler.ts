@@ -1,8 +1,8 @@
 import { Callback, Context, Handler } from "aws-lambda";
 import * as AWS from "aws-sdk";
 
-import APIError from './error';
-import { ProjectHandler } from './handlers/project';
+import APIError from "./error";
+import { ProjectHandler } from "./handlers/project";
 import { UserHandler } from "./handlers/user";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
@@ -20,7 +20,7 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
             body: JSON.stringify(res),
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*',
+                "Access-Control-Allow-Origin": "*",
             },
             statusCode: "200",
         });
@@ -29,7 +29,7 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
             body: JSON.stringify(err.message),
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*',
+                "Access-Control-Allow-Origin": "*",
             },
             statusCode: err.status,
         });

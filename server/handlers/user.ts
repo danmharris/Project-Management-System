@@ -2,7 +2,7 @@
 import { User } from "../models/user";
 import { UserSkills } from "../models/userSkills";
 
-import APIError from '../error';
+import APIError from "../error";
 
 class UserHandler {
     private dynamo: any;

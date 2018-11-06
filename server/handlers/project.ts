@@ -1,7 +1,7 @@
 import { isProjectParams, Project } from "../models/project";
 import { User } from "../models/user";
 
-import APIError from '../error';
+import APIError from "../error";
 
 class ProjectHandler {
     private dynamo: any;
@@ -84,9 +84,9 @@ class ProjectHandler {
             message = `You have been added to project ${proj.name}`;
         }
 
-        var emailParams = {
+        const emailParams = {
             Destination: {
-                ToAddresses: users.map((user: User) => user.email)
+                ToAddresses: users.map((user: User) => user.email),
             },
             Message: {
                 Body: {
