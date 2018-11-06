@@ -4,6 +4,7 @@ import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
 import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../models/project";
+import APIError from '../error';
 
 describe("Project", () => {
     let params: ProjectParams;
@@ -49,9 +50,10 @@ describe("Project", () => {
                 next("error", null);
             });
 
-            return Project.getById("123", dbh).catch((err: any) => {
+            return Project.getById("123", dbh).catch((err: APIError) => {
                 expect(getFailStub.called);
-                expect(err).toBe("Unable to retrieve project");
+                expect(err.message).toBe("Unable to retrieve project");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -92,9 +94,10 @@ describe("Project", () => {
                 next("error", null);
             });
 
-            return Project.getAll(dbh).catch((err: any) => {
+            return Project.getAll(dbh).catch((err: APIError) => {
                 expect(scanFailStub.called);
-                expect(err).toBe("Unable to retrieve projects");
+                expect(err.message).toBe("Unable to retrieve projects");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -236,9 +239,10 @@ describe("Project", () => {
                 next("err", null);
             });
 
-            proj.save().catch((err: string) => {
+            proj.save().catch((err: APIError) => {
                 expect(failSaveStub.called);
-                expect(err).toEqual("Error creating project");
+                expect(err.message).toEqual("Error creating project");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -259,9 +263,10 @@ describe("Project", () => {
                 next("err", null);
             });
 
-            proj.update().catch((err: string) => {
+            proj.update().catch((err: APIError) => {
                 expect(failUpdateStub.called);
-                expect(err).toEqual("Unable to update project");
+                expect(err.message).toEqual("Unable to update project");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -282,9 +287,10 @@ describe("Project", () => {
                 next("err", null);
             });
 
-            proj.delete().catch((err: string) => {
+            proj.delete().catch((err: APIError) => {
                 expect(failDeleteStub.called);
-                expect(err).toEqual("Unable to delete project");
+                expect(err.message).toEqual("Unable to delete project");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -319,9 +325,10 @@ describe("Project", () => {
                 next("err", null);
             });
 
-            return proj.addDevelopers(["abc"]).catch((err) => {
+            return proj.addDevelopers(["abc"]).catch((err: APIError) => {
                 expect(failAddDeveloperStub.called);
-                expect(err).toEqual("Unable to add developers to project");
+                expect(err.message).toEqual("Unable to add developers to project");
+                expect(err.status).toBe(500);
             });
         });
 
@@ -330,9 +337,10 @@ describe("Project", () => {
                 next("err", null);
             });
 
-            return proj.removeDevelopers(["abc"]).catch((err) => {
+            return proj.removeDevelopers(["abc"]).catch((err: APIError) => {
                 expect(failRemoveDeveloperStub.called);
-                expect(err).toEqual("Unable to remove developers from project");
+                expect(err.message).toEqual("Unable to remove developers from project");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -377,12 +385,6 @@ describe("Project", () => {
 
         it("should return an error if uuid type is wrong", () => {
             projectParams.uuid = 2;
-            const res = isProjectParams(projectParams);
-            expect(res).toBeFalsy();
-        });
-
-        it("should return an error if status type is wrong", () => {
-            projectParams.status = "2";
             const res = isProjectParams(projectParams);
             expect(res).toBeFalsy();
         });

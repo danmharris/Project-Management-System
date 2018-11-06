@@ -3,6 +3,7 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
+import APIError from "../error";
 import { UserSkills, UserSkillsParams } from "../models/userSkills";
 
 describe("UserSkills", () => {
@@ -54,9 +55,10 @@ describe("UserSkills", () => {
                 next("Err", null);
             });
 
-            return UserSkills.getBySub("abc123", dbh).catch((err: string) => {
+            return UserSkills.getBySub("abc123", dbh).catch((err: APIError) => {
                 expect(getBySubStub.called);
-                expect(err).toEqual("Unable to retrieve user");
+                expect(err.message).toEqual("Unable to retrieve user");
+                expect(err.status).toBe(500);
             });
         });
     });
@@ -77,9 +79,10 @@ describe("UserSkills", () => {
                 next("err", null);
             });
 
-            return userSkills.update().catch((err: string) => {
+            return userSkills.update().catch((err: APIError) => {
                 expect(updateStub.called);
-                expect(err).toEqual("Unable to update user");
+                expect(err.message).toEqual("Unable to update user");
+                expect(err.status).toBe(500);
             });
         });
     });
