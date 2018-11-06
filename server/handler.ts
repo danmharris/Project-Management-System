@@ -8,7 +8,7 @@ import { UserHandler } from "./handlers/user";
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const cognito = new AWS.CognitoIdentityServiceProvider();
 const ses = new AWS.SES({ region: "eu-west-1"});
-const COGNITO_POOL = "eu-west-2_zVlfrxmDj";
+let COGNITO_POOL: string;
 let user: string;
 let groups: string[];
 let body: any;
@@ -40,6 +40,7 @@ const init = (event: any) => {
     body = JSON.parse(event.body);
     user = event.requestContext.authorizer.claims.sub;
     groups = event.requestContext.authorizer.claims["cognito:groups"];
+    COGNITO_POOL = process.env.COGNITO_POOL ? process.env.COGNITO_POOL : "";
 };
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {
