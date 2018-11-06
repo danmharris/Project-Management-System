@@ -1,14 +1,14 @@
 import { Callback, Context, Handler } from "aws-lambda";
 import * as AWS from "aws-sdk";
 
-import APIError from './error';
-import { ProjectHandler } from './handlers/project';
+import APIError from "./error";
+import { ProjectHandler } from "./handlers/project";
 import { UserHandler } from "./handlers/user";
 
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const cognito = new AWS.CognitoIdentityServiceProvider();
 const ses = new AWS.SES({ region: "eu-west-1"});
-const COGNITO_POOL = "eu-west-2_zVlfrxmDj";
+let COGNITO_POOL: string;
 let user: string;
 let groups: string[];
 let body: any;
@@ -20,7 +20,7 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
             body: JSON.stringify(res),
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*',
+                "Access-Control-Allow-Origin": "*",
             },
             statusCode: "200",
         });
@@ -29,7 +29,7 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
             body: JSON.stringify(err.message),
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*',
+                "Access-Control-Allow-Origin": "*",
             },
             statusCode: err.status,
         });
@@ -40,6 +40,7 @@ const init = (event: any) => {
     body = JSON.parse(event.body);
     user = event.requestContext.authorizer.claims.sub;
     groups = event.requestContext.authorizer.claims["cognito:groups"];
+    COGNITO_POOL = process.env.COGNITO_POOL ? process.env.COGNITO_POOL : "";
 };
 
 const projects: Handler = (event: any, context: Context, callback: Callback) => {

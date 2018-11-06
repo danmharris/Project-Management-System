@@ -3,6 +3,7 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
+import APIError from "../error";
 import { User, UserParams } from "../models/user";
 
 describe("User", () => {
@@ -58,9 +59,10 @@ describe("User", () => {
                 next("err", null);
             });
 
-            return User.getAll(cognitoProvider, "testPool").catch((err: string) => {
+            return User.getAll(cognitoProvider, "testPool").catch((err: APIError) => {
                 expect(listUsersStub.called);
-                expect(err).toEqual("Unable to retrieve users");
+                expect(err.message).toEqual("Unable to retrieve users");
+                expect(err.status).toBe(500);
             });
         });
     });
