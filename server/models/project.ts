@@ -56,6 +56,8 @@ class Project {
             dbh.get(params, (err: any, res: any) => {
                 if (err) {
                     reject(new APIError("Unable to retrieve project"));
+                } else if (!res.Item) {
+                    reject(new APIError("Project not found", 404));
                 } else {
                     if (res.Item.developers) {
                         res.Item.developers = res.Item.developers.values;
