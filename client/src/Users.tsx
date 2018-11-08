@@ -1,9 +1,10 @@
 import * as React from 'react';
 
-import { Alert, Button, ControlLabel, FormControl, FormGroup, ListGroup, ListGroupItem, Modal, PageHeader} from 'react-bootstrap';
+import { Alert, FormControl, FormGroup, ListGroup, ListGroupItem, PageHeader} from 'react-bootstrap';
 
 import CookieService from './service/cookie';
 import UserService from './service/user';
+import UserDetails from './UserDetails';
 
 interface UsersState {
     users: any[];
@@ -11,7 +12,6 @@ interface UsersState {
     selectedUser: any;
     selectedUserSkills: string[];
     selectedUserGroup: string;
-    showModal: boolean;
     err: string;
 }
 
@@ -25,18 +25,12 @@ class Users extends React.Component<{}, UsersState> {
             selectedUser: null,
             selectedUserGroup: '',
             selectedUserSkills: [],
-            showModal: false,
             users: [],
         };
 
         this.renderUserList = this.renderUserList.bind(this);
-        this.renderModal = this.renderModal.bind(this);
         this.onModalHide = this.onModalHide.bind(this);
         this.onUserClick = this.onUserClick.bind(this);
-        this.renderSkillsList = this.renderSkillsList.bind(this);
-        this.renderGroupList = this.renderGroupList.bind(this);
-        this.onGroupChange = this.onGroupChange.bind(this);
-        this.onGroupSubmit = this.onGroupSubmit.bind(this);
         this.onSearchChange = this.onSearchChange.bind(this);
 
         UserService.getAll().then((res: any) => {
@@ -66,35 +60,9 @@ class Users extends React.Component<{}, UsersState> {
                 <ListGroup>
                     {this.renderUserList()}
                 </ListGroup>
-
-                {this.renderModal()}
+                <UserDetails user={this.state.selectedUser} skills={this.state.selectedUserSkills} group={this.state.selectedUserGroup} onModalHide={this.onModalHide} />
             </div>
         );
-    }
-
-    private renderModal() {
-        if (this.state.selectedUser) {
-            return (
-                <Modal show={this.state.showModal}
-                    onHide={this.onModalHide}>
-
-                    <Modal.Header closeButton={true}>
-                        <Modal.Title>{this.state.selectedUser.name}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <h5>Email: {this.state.selectedUser.email}</h5>
-                        <h5>Address: {this.state.selectedUser.address}</h5>
-                        <h4>Skills:</h4>
-                        <ul>
-                            {this.renderSkillsList()}
-                        </ul>
-                        {this.renderGroupList()}
-                    </Modal.Body>
-                </Modal>
-            )
-        } else {
-            return null;
-        }
     }
 
     private onUserClick(e: any) {
@@ -106,7 +74,6 @@ class Users extends React.Component<{}, UsersState> {
             this.setState({
                 selectedUser,
                 selectedUserSkills: res.data.skills,
-                showModal: true,
             });
         }).catch((error) => this.setState({ err: `Unable to get user information. Reason: ${error.data.message}`}));;
 
@@ -124,7 +91,6 @@ class Users extends React.Component<{}, UsersState> {
             selectedUser: null,
             selectedUserGroup: '',
             selectedUserSkills: [],
-            showModal: false,
         });
     }
 
@@ -134,49 +100,6 @@ class Users extends React.Component<{}, UsersState> {
                 {user.email}
             </ListGroupItem>
         );
-    }
-
-    private renderSkillsList() {
-        if (this.state.selectedUserSkills.length === 0) {
-            return <Alert bsStyle="info">This user has no skills listed</Alert>
-        }
-
-        return this.state.selectedUserSkills.map((skill: string) =>
-            <li key={skill}>
-                {skill}
-            </li>
-        );
-    }
-
-    private renderGroupList() {
-        if (this.state.selectedUserGroup === '') {
-            return null;
-        }
-
-        return (
-            <form>
-                <FormGroup controlId="user-group">
-                    <ControlLabel>Group:</ControlLabel>
-                    <FormControl componentClass="select" value={this.state.selectedUserGroup} onChange={this.onGroupChange}>
-                        <option value="Developers">Developers</option>
-                        <option value="ProjectManagers">Project Managers</option>
-                        <option value="Admins">Admins</option>
-                    </FormControl>
-                    <Button onClick={this.onGroupSubmit}>Update</Button>
-                </FormGroup>
-            </form>
-        );
-    }
-
-    private onGroupChange(e: any) {
-        this.setState({
-            selectedUserGroup: e.target.value,
-        });
-    }
-
-    private onGroupSubmit() {
-        UserService.setGroup(this.state.selectedUser.username, this.state.selectedUserGroup)
-            .catch((error) => this.setState({ err: `Unable to update group. Reason: ${error.data.message}`}));;
     }
 
     private onSearchChange(e: any) {
