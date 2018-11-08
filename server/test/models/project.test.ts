@@ -3,8 +3,8 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import APIError from "../error";
-import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../models/project";
+import APIError from "../../error";
+import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../../models/project";
 
 describe("Project", () => {
     let params: ProjectParams;

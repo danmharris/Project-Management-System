@@ -3,8 +3,8 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import APIError from "../error";
-import { User, UserParams } from "../models/user";
+import APIError from "../../error";
+import { User, UserParams } from "../../models/user";
 
 describe("User", () => {
     let cognitoProvider: any;
