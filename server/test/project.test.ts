@@ -45,6 +45,18 @@ describe("Project", () => {
             });
         });
 
+        it("should return error if project not found", () => {
+            const getStub = sinon.stub(dbh, "get").callsFake((req, next) => {
+                next(null, {});
+            });
+
+            return Project.getById("doesnt exist", dbh).catch((err) => {
+                expect(getStub.called);
+                expect(err.message).toEqual("Project not found");
+                expect(err.status).toEqual(404);
+            });
+        });
+
         it("should return an error if API fails", () => {
             const getFailStub = sinon.stub(dbh, "get").callsFake((req, next) => {
                 next("error", null);
