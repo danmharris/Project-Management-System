@@ -81,4 +81,128 @@ describe("User", () => {
             });
         });
     });
+
+    describe("getGroup", () => {
+        it("Should return group if present", () => {
+            const getGroupsStub = sinon.stub(cognitoProvider, "adminListGroupsForUser").callsFake((req, next) => {
+                next(null, {
+                    Groups: [
+                        {
+                            GroupName: "Admins",
+                        },
+                    ],
+                });
+            });
+
+            return User.getGroup("test", cognitoProvider, "testPool").then((res) => {
+                expect(getGroupsStub.called);
+                expect(res).toEqual("Admins");
+            });
+        });
+
+        it("Should return Developers if not in group", () => {
+            const getGroupsStub = sinon.stub(cognitoProvider, "adminListGroupsForUser").callsFake((req, next) => {
+                next(null, {
+                    Groups: [],
+                });
+            });
+
+            return User.getGroup("test", cognitoProvider, "testPool").then((res) => {
+                expect(getGroupsStub.called);
+                expect(res).toEqual("Developers");
+            });
+        });
+
+        it("Should throw error on cognito failure", () => {
+            const getGroupsStub = sinon.stub(cognitoProvider, "adminListGroupsForUser").callsFake((req, next) => {
+                next("err", null);
+            });
+
+            return User.getGroup("test", cognitoProvider, "testPool").catch((err) => {
+                expect(getGroupsStub.called);
+                expect(err.message).toEqual("Unable to get groups");
+                expect(err.status).toEqual(500);
+            });
+        });
+    });
+
+    describe("setGroup", () => {
+        it("Should move groups if previously a developer", () => {
+            const getGroupStub = sinon.stub(User, "getGroup").resolves("Developers");
+            const removeFromGroupStub = sinon.stub(cognitoProvider, "adminRemoveUserFromGroup")
+                .callsFake((req, next) => next(null, ""));
+            const addToGroupStub = sinon.stub(cognitoProvider, "adminAddUserToGroup")
+                .callsFake((req, next) => next(null, ""));
+
+            return User.setGroup("test", cognitoProvider, "testPool", "admins").then(() => {
+                expect(getGroupStub.called);
+                expect(removeFromGroupStub.notCalled);
+                expect(addToGroupStub.called);
+                getGroupStub.restore();
+            });
+        });
+
+        it("Should move groups if previously not a developer", () => {
+            sinon.reset();
+            const getGroupStub = sinon.stub(User, "getGroup").resolves("Admins");
+            const removeFromGroupStub = sinon.stub(cognitoProvider, "adminRemoveUserFromGroup")
+                .callsFake((req, next) => next(null, ""));
+            const addToGroupStub = sinon.stub(cognitoProvider, "adminAddUserToGroup")
+                .callsFake((req, next) => next(null, ""));
+
+            return User.setGroup("test", cognitoProvider, "testPool", "admins").then(() => {
+                expect(getGroupStub.called);
+                expect(removeFromGroupStub.called);
+                expect(addToGroupStub.called);
+                getGroupStub.restore();
+            });
+        });
+
+        it("Should move groups if becoming developer", () => {
+            const getGroupStub = sinon.stub(User, "getGroup").resolves("Admins");
+            const removeFromGroupStub = sinon.stub(cognitoProvider, "adminRemoveUserFromGroup")
+                .callsFake((req, next) => next(null, ""));
+            const addToGroupStub = sinon.stub(cognitoProvider, "adminAddUserToGroup")
+                .callsFake((req, next) => next(null, ""));
+
+            return User.setGroup("test", cognitoProvider, "testPool", "Developers").then(() => {
+                expect(getGroupStub.called);
+                expect(removeFromGroupStub.called);
+                expect(addToGroupStub.notCalled);
+                getGroupStub.restore();
+            });
+        });
+
+        it("Should reject if unable to remove from old group", () => {
+            const getGroupStub = sinon.stub(User, "getGroup").resolves("Admins");
+            const removeFromGroupStub = sinon.stub(cognitoProvider, "adminRemoveUserFromGroup")
+                .callsFake((req, next) => next("err", null));
+
+            return User.setGroup("test", cognitoProvider, "testPool", "Admins").catch((err) => {
+                expect(getGroupStub.called);
+                expect(removeFromGroupStub.called);
+                expect(err.message).toEqual("Unable to remove old group");
+                expect(err.status).toEqual(500);
+                getGroupStub.restore();
+            });
+        });
+
+        it("Should reject if unable to add to new group", () => {
+            const getGroupStub = sinon.stub(User, "getGroup").resolves("Admins");
+            const removeFromGroupStub = sinon.stub(cognitoProvider, "adminRemoveUserFromGroup")
+                .callsFake((req, next) => next(null, ""));
+            const addToGroupStub = sinon.stub(cognitoProvider, "adminAddUserToGroup")
+                .callsFake((req, next) => next("err", null));
+
+            return User.setGroup("test", cognitoProvider, "testPool", "Admins").catch((err) => {
+                expect(getGroupStub.called);
+                expect(removeFromGroupStub.called);
+                expect(addToGroupStub.called);
+                expect(err.message).toEqual("Unable to add new group");
+                expect(err.status).toEqual(500);
+                getGroupStub.restore();
+            });
+        });
+
+    });
 });
