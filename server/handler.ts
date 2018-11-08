@@ -26,7 +26,7 @@ const handle = async (promise: Promise<any>, callback: Callback) => {
         });
     } catch (err) {
         callback(null, {
-            body: JSON.stringify(err.message),
+            body: JSON.stringify({message: err.message, status: err.status }),
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
