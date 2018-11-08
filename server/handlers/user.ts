@@ -4,12 +4,18 @@ import { UserSkills } from "../models/userSkills";
 
 import APIError from "../error";
 
+/**
+ * Handler functions for dealing with requests regarding users or their skills
+ */
 class UserHandler {
     private dynamo: any;
     private cognito: any;
     private COGNITO_POOL: string;
     private user: string;
 
+    /**
+     * When constructing requires these objects to handle requests.
+     */
     constructor(dynamo: any, cognito: any, pool: string, user: string) {
         this.dynamo = dynamo;
         this.cognito = cognito;

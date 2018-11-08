@@ -19,6 +19,13 @@ interface ProjectParams {
     manager: string;
 }
 
+/**
+ * Checks whether a given object is the type ProjectParams
+ *
+ * Performs type and value checks
+ *
+ * @param obj The object to check
+ */
 const isProjectParams: (obj: any) => boolean = (obj: any) => {
     if (!obj.name || !obj.description || !obj.manager) {
         return false;
@@ -43,7 +50,15 @@ const isProjectParams: (obj: any) => boolean = (obj: any) => {
     return true;
 };
 
+/**
+ * Model class for an individual Project
+ */
 class Project {
+    /**
+     * Static methods for retrieving models from the database
+     *
+     * Will construct new instances of this class from the result
+     */
     public static getById(uuid: string, dbh: any): Promise<Project> {
         const params = {
             TableName: TABLE_NAME,
@@ -100,10 +115,17 @@ class Project {
     private _manager: string;
     private dbh: any;
 
+    /**
+     * Creates a new instance of this class with required parameters
+     * and a database handler
+     * @param params Parameters to initialise class with
+     * @param dbh Database handler (dynamo)
+     */
     constructor(params: ProjectParams, dbh: any) {
         this._name = params.name;
         this._description = params.description;
 
+        // Sets default values for some properties if not provided
         if (params.status) {
             this._status = params.status;
         } else {
@@ -167,6 +189,9 @@ class Project {
         this._manager = newManager;
     }
 
+    /**
+     * Save this object in the database, returning its new UUID
+     */
     public save(): Promise<string> {
         const params = {
             TableName: TABLE_NAME,
@@ -190,6 +215,9 @@ class Project {
         });
     }
 
+    /**
+     * Update the database with the values of this instance
+     */
     public update(): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
@@ -214,13 +242,15 @@ class Project {
                 if (err) {
                     reject(new APIError("Unable to update project"));
                 } else {
-                    // TODO: More meaningful return data here
                     resolve(res);
                 }
             });
         });
     }
 
+    /**
+     * Delete this project from the database
+     */
     public delete(): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
@@ -240,6 +270,10 @@ class Project {
         });
     }
 
+    /**
+     * Adds new developers to this project
+     * @param subs List of user subs to add
+     */
     public addDevelopers(subs: string[]): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
@@ -264,6 +298,10 @@ class Project {
         });
     }
 
+    /**
+     * Remove developers from this project
+     * @param subs List of developer subs to remove
+     */
     public removeDevelopers(subs: string[]): Promise<any> {
         const params = {
             TableName: TABLE_NAME,
@@ -288,6 +326,10 @@ class Project {
         });
     }
 
+    /**
+     * Updates the fields of this project (if present)
+     * @param params Parameters to update project with
+     */
     public setParams(params: any) {
         if (params.name) {
             this.name = params.name;
@@ -308,6 +350,9 @@ class Project {
         }
     }
 
+    /**
+     * Returns a single object containing all the fields of this project
+     */
     public getParams(): ProjectParams {
         return {
             uuid: this.uuid,

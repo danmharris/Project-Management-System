@@ -7,7 +7,15 @@ interface UserSkillsParams {
     skills: string[];
 }
 
+/**
+ * Model class representing the list of skills for a particular user
+ */
 class UserSkills {
+    /**
+     * Gets the skills of a given user
+     * @param sub The unique sub of the user to get skills for
+     * @param dbh Database handler to access information
+     */
     public static getBySub(sub: string, dbh: any): Promise<UserSkills> {
         const params = {
             TableName: TABLE_NAME,
@@ -37,6 +45,11 @@ class UserSkills {
     private _skills: string[] = [];
     private dbh: any;
 
+    /**
+     * Construct new instance of user skills from parameters
+     * @param params The parameters to create instance from
+     * @param dbh Database handler
+     */
     constructor(params: UserSkillsParams, dbh: any) {
         this.sub = params.sub;
         this.skills = params.skills;
@@ -59,6 +72,9 @@ class UserSkills {
         this._skills = newSkills;
     }
 
+    /**
+     * Returns the fields of this user as a single object
+     */
     public getParams(): UserSkillsParams {
         return {
             sub: this.sub,
@@ -66,12 +82,18 @@ class UserSkills {
         };
     }
 
+    /**
+     * Update all the fields of this user from a single object
+     */
     public setParams(params: any) {
         if (this.skills) {
             this.skills = params.skills;
         }
     }
 
+    /**
+     * Update the database with the current values in this object
+     */
     public update(): Promise<UserSkills> {
         const params = {
             TableName: TABLE_NAME,
