@@ -3,8 +3,8 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import APIError from "../error";
-import { UserSkills, UserSkillsParams } from "../models/userSkills";
+import APIError from "../../error";
+import { UserSkills, UserSkillsParams } from "../../models/userSkills";
 
 describe("UserSkills", () => {
     let dbh: any;

@@ -3,8 +3,8 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import APIError from "../error";
-import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../models/project";
+import APIError from "../../error";
+import { isProjectParams, Project, ProjectParams, ProjectStatus } from "../../models/project";
 
 describe("Project", () => {
     let params: ProjectParams;
@@ -42,6 +42,18 @@ describe("Project", () => {
                 expect(dbProj.description).toBe("Project description");
                 expect(dbProj.status).toBe(ProjectStatus.ACTIVE);
                 expect(dbProj.manager).toEqual("abc");
+            });
+        });
+
+        it("should return error if project not found", () => {
+            const getStub = sinon.stub(dbh, "get").callsFake((req, next) => {
+                next(null, {});
+            });
+
+            return Project.getById("doesnt exist", dbh).catch((err) => {
+                expect(getStub.called);
+                expect(err.message).toEqual("Project not found");
+                expect(err.status).toEqual(404);
             });
         });
 
