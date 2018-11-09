@@ -33,9 +33,6 @@ class Navigation extends React.Component {
                     <NavItem href="/profile">
                       My Profile
                     </NavItem>
-                    <NavItem href="#">
-                      Settings
-                    </NavItem>
                     <NavItem href="/logout">
                       Logout
                     </NavItem>
