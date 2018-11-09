@@ -2,17 +2,17 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
+import { ProjectHandler } from "../../handlers/project";
 import { Project } from "../../models/project";
-import { ProjectHandler }from "../../handlers/project";
 
 describe("Project Handler", () => {
-    let project: Project = new Project({
+    const project: Project = new Project({
         name: "Project",
         description: "Description",
         manager: "test",
         status: 0,
     }, null);
-    let getByidStub = sinon.stub(Project, "getById").resolves(project);
+    const getByidStub = sinon.stub(Project, "getById").resolves(project);
     let handler: ProjectHandler;
 
     beforeEach(() => {

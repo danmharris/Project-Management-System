@@ -2,18 +2,18 @@ import * as expect from "expect";
 import { describe, it } from "mocha";
 import * as sinon from "sinon";
 
-import { User } from "../../models/user";
 import { UserHandler } from "../../handlers/user";
+import { User } from "../../models/user";
 import { UserSkills } from "../../models/userSkills";
 
 describe("User Handler", () => {
-    let userSkills: UserSkills = new UserSkills({
+    const userSkills: UserSkills = new UserSkills({
         sub: "123",
         skills: ["1", "2"],
     }, null);
-    let getBySubStub = sinon.stub(UserSkills, "getBySub").resolves(userSkills);
-    let getGroupStub = sinon.stub(User, "getGroup").resolves("Admins");
-    let setGroupStub = sinon.stub(User, "setGroup").resolves();
+    const getBySubStub = sinon.stub(UserSkills, "getBySub").resolves(userSkills);
+    const getGroupStub = sinon.stub(User, "getGroup").resolves("Admins");
+    const setGroupStub = sinon.stub(User, "setGroup").resolves();
     let handler: UserHandler;
 
     beforeEach(() => {
@@ -34,7 +34,7 @@ describe("User Handler", () => {
 
         return handler.updateSkills("user", { skills: ["1"] }).then(() => {
             expect(updateSkillsSub.called);
-        })
+        });
     });
 
     it("Should not allow updating skills of arbitrary user", () => {
