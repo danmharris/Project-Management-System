@@ -11,6 +11,8 @@ This is a serverless application to allow users to create/manage projects. The p
 The backend consists of several AWS Lambda functions, invoked by an API gateway and creating, updating, storing and deleting data from a DynamoDB NoSQL Database
 
 It can be deployed as follows:
+
+0. Run tests and linter with `npm test` and `npm run lint` respectively
 1. Install the AWS cli & the serverless framework
 2. Create user in IAM for the AWS CLI
 3. Set up AWS credentials for the CLI (by running `aws configure`)

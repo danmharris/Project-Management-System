@@ -1,5 +1,13 @@
 # Project Management API
 
+## Error Schema
+```
+{
+    "message": "An error has occured...",
+    "status": 500
+}
+```
+
 ## Projects
 ### `POST /projects`
 Creates a new project and returns the unique identifier for it.
@@ -54,6 +62,7 @@ Retrieves the information for a specific project
     ]
 }
 ```
+* 404: Project not found
 
 ### `PUT /projects/{uuid}`
 Updates the information for a specific project

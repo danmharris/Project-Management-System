@@ -16,18 +16,18 @@ provider:
         - dynamodb:GetItem
         - dynamodb:UpdateItem
         - dynamodb:Scan
-      Resource: "arn:aws:dynamodb:eu-west-2:*:*"
+      Resource: "arn:aws:dynamodb:eu-west-2:485681223941:*"
     - Effect: Allow
       Action:
         - cognito-idp:ListUsers
         - cognito-idp:AdminListGroupsForUser
         - cognito-idp:AdminRemoveUserFromGroup
         - cognito-idp:AdminAddUserToGroup
-      Resource: "arn:aws:cognito-idp:eu-west-2:*:*"
+      Resource: "arn:aws:cognito-idp:eu-west-2:485681223941:*"
     - Effect: Allow
       Action:
         - ses:SendEmail
-      Resource: "*"
+      Resource: "arn:aws:ses:eu-west-1:485681223941:*"
   environment:
     COGNITO_POOL: "eu-west-2_zVlfrxmDj"
 
