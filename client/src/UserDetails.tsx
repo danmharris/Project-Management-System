@@ -2,18 +2,18 @@ import * as React from 'react';
 
 import { Alert, Button, ControlLabel, FormControl, FormGroup, Modal } from 'react-bootstrap';
 
+import CookieService from './service/cookie';
 import UserService from './service/user';
 
 interface UserDetailsProps {
     user: any;
-    skills: string[];
-    group: string;
     onModalHide: () => void;
 }
 
 interface UserDetailsState {
     group: string;
     err: string;
+    skills: string[];
 }
 
 class UserDetails extends React.Component<UserDetailsProps, UserDetailsState> {
@@ -29,18 +29,30 @@ class UserDetails extends React.Component<UserDetailsProps, UserDetailsState> {
 
         this.state = {
             err: '',
-            group: this.props.group,
+            group: '',
+            skills: [],
         };
+
+        UserService.getSkills(this.props.user.sub).then((res: any) => {
+            this.setState({
+                skills: res.data.skills,
+            });
+        }).catch((error) => this.setState({ err: `Unable to get user information. Reason: ${error.data.message}`}));;
+
+        const isAdmin = CookieService.getGroups().indexOf("Admins") > -1;
+        if (isAdmin) {
+            UserService.getGroup(this.props.user.username).then((res: any) => {
+                this.setState({
+                    group: res.data.group,
+                });
+            }).catch((error) => this.setState({ err: `Unable to get group information. Reason: ${error.data.message}`}));;
+        }
     }
 
     public render() {
         let alert: any;
         if (this.state.err) {
             alert = <Alert bsStyle="danger">{this.state.err}</Alert>
-        }
-
-        if (!this.props.user) {
-            return null;
         }
 
         return (
@@ -65,11 +77,11 @@ class UserDetails extends React.Component<UserDetailsProps, UserDetailsState> {
     }
 
     private renderSkillsList() {
-        if (this.props.skills.length === 0) {
+        if (this.state.skills.length === 0) {
             return <Alert bsStyle="info">This user has no skills listed</Alert>
         }
 
-        return this.props.skills.map((skill: string) =>
+        return this.state.skills.map((skill: string) =>
             <li key={skill}>
                 {skill}
             </li>
@@ -103,7 +115,7 @@ class UserDetails extends React.Component<UserDetailsProps, UserDetailsState> {
     }
 
     private onGroupSubmit() {
-        UserService.setGroup(this.props.user.username, this.props.group)
+        UserService.setGroup(this.props.user.username, this.state.group)
             .catch((error) => this.setState({ err: `Unable to update group. Reason: ${error.data.message}`}));;
     }
 

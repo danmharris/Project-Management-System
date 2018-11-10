@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import { Alert, FormControl, FormGroup, ListGroup, ListGroupItem, PageHeader} from 'react-bootstrap';
 
-import CookieService from './service/cookie';
 import UserService from './service/user';
 import UserDetails from './UserDetails';
 
@@ -60,7 +59,7 @@ class Users extends React.Component<{}, UsersState> {
                 <ListGroup>
                     {this.renderUserList()}
                 </ListGroup>
-                <UserDetails user={this.state.selectedUser} skills={this.state.selectedUserSkills} group={this.state.selectedUserGroup} onModalHide={this.onModalHide} />
+                {this.state.selectedUser && <UserDetails user={this.state.selectedUser} onModalHide={this.onModalHide} />}
             </div>
         );
     }
@@ -68,22 +67,11 @@ class Users extends React.Component<{}, UsersState> {
     private onUserClick(e: any) {
         const sub = e.target.value;
         const selectedUser = this.state.users.find((user: any) => user.sub === sub);
-        const isAdmin = CookieService.getGroups().indexOf("Admins") > -1;
 
-        UserService.getSkills(sub).then((res: any) => {
-            this.setState({
-                selectedUser,
-                selectedUserSkills: res.data.skills,
-            });
-        }).catch((error) => this.setState({ err: `Unable to get user information. Reason: ${error.data.message}`}));;
+        this.setState({
+            selectedUser,
+        });
 
-        if (isAdmin) {
-            UserService.getGroup(selectedUser.username).then((res: any) => {
-                this.setState({
-                    selectedUserGroup: res.data.group,
-                });
-            }).catch((error) => this.setState({ err: `Unable to get group information. Reason: ${error.data.message}`}));;
-        }
     }
 
     private onModalHide() {
