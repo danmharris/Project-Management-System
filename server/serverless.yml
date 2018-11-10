@@ -6,7 +6,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
+  stage: prod
   region: eu-west-2
   iamRoleStatements:
     - Effect: Allow
@@ -75,7 +75,7 @@ functions:
   projectDevelopers:
     handler: handler.projectDevelopers
     name: ${self:provider.stage}-projectDevelopersHandler
-    descrition: Handles API calls related to developers on a project
+    description: Handles API calls related to developers on a project
     events:
       - http:
           path: projects/{uuid}/developers
