@@ -1,5 +1,5 @@
-# COMP3207 Individual Coursework
-## Project Management Application
+# Project Management Application
+## Year 3, Semester 1 Coursework in Cloud Application Development
 This is a serverless application to allow users to create/manage projects. The project is built on the Amazon Web Services infrastructure
 
 ### Specific README files
